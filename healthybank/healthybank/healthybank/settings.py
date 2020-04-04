@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    # 'corsheaders',
+    'corsheaders',
     'rest_framework',
     'business'
 ]
@@ -141,7 +141,7 @@ if 'ENVIRONMENT' in os.environ and os.environ['ENVIRONMENT'] == 'production':
     CORS_ORIGIN_ALLOW_ALL = False
 
     CORS_ORIGIN_WHITELIST = (
-        'https://web.wellmoapp.in',
+        'https://web.healthybank.in',
         'https://localhost:8000'
     )
     USE_X_FORWARDED_HOST = True
