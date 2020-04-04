@@ -31,11 +31,14 @@ class BusinessSerializer(serializers.ModelSerializer):
         return {}
 
     def get_distance(self,obj):
+
         latitude = self.context['request'].query_params.get('latitude')
         longitude = self.context['request'].query_params.get('longitude')
-        request_location = GEOSGeometry('SRID=4326;POINT(%s %s)' % ( latitude, longitude))
+        if latitude is not None and longitude is not None:
+            request_location = GEOSGeometry('SRID=4326;POINT(%s %s)' % ( latitude, longitude))
 
-        return obj.loc.distance(request_location) * 100 * 1000
+            return obj.loc.distance(request_location) * 100 * 1000
+        return 0
 
 
 
