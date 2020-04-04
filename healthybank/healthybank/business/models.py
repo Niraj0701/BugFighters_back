@@ -9,6 +9,9 @@ from django.contrib import admin
 class BusinessAdmin(admin.ModelAdmin):
     search_fields = ['name', 'loc', 'users_allowed', 'slot_size_min']
 
+class UserslotAdmin(admin.ModelAdmin):
+        search_fields = ['business', 'customer_name', 'mobile', 'slot',"date"]
+
 class Business(models.Model):
     BUSINESS_TYPES = [
         ("UNKNOWN","UNKNOWN"),
@@ -56,7 +59,8 @@ class UserSlot(models.Model):
       # user = models.ForeignKey(User)
       date = models.DateField()
 
-
+      def __str__(self):
+          return "%s %s @ %s" %  ( self.customer_name, self.mobile ,self.business.name )
 
 
 
