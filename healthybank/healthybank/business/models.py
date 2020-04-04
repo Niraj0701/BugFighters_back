@@ -15,7 +15,7 @@ class UserslotAdmin(admin.ModelAdmin):
 class Business(models.Model):
     BUSINESS_TYPES = [
         ("UNKNOWN","UNKNOWN"),
-        ("BANKE", 'BANKE'),
+        ("BANK", 'BANK'),
         ("GROCERY", 'GROCERY'),
         ("PHARMACY", 'PHARMACY'),
 
