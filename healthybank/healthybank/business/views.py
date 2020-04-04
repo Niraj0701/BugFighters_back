@@ -16,11 +16,12 @@ class BusinessSerializer(serializers.ModelSerializer):
     # slots = serializers.SerializerMethodField('get_slots', read_only=True)
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
+    distance = serializers.SerializerMethodField('get_distance',read_only=True)
 
     class Meta:
         model = Business
         fields = ['name', 'coords', 'id', "business_type", 'users_allowed', 'slot_size_min', "longitude", "latitude",
-                  "slots", "start_time", "end_time"]
+                  "slots", "start_time", "end_time","distance"]
         # exclude = ['organization']
         # fields = '__all__'
 
@@ -28,6 +29,14 @@ class BusinessSerializer(serializers.ModelSerializer):
         if isinstance(obj, Business):
             return {"latitude": obj.loc.x, "longitude": obj.loc.y}
         return {}
+
+    def get_distance(self,obj):
+        latitude = self.context['request'].query_params.get('latitude')
+        longitude = self.context['request'].query_params.get('longitude')
+        request_location = GEOSGeometry('SRID=4326;POINT(%s %s)' % ( latitude, longitude))
+
+        return obj.loc.distance(request_location) * 100 * 1000
+
 
 
 class UserSlotSerializer(serializers.ModelSerializer):
