@@ -11,9 +11,9 @@ class BusinessAdmin(admin.ModelAdmin):
 class Business(models.Model):
     BUSINESS_TYPES = [
         ("UNKNOWN","UNKNOWN"),
-        ("BANKE", 'bank'),
-        ("GROCERY", 'grocery_store'),
-        ("PHARMACY", 'pharmacy'),
+        ("BANKE", 'BANKE'),
+        ("GROCERY", 'GROCERY'),
+        ("PHARMACY", 'PHARMACY'),
 
     ]
 
