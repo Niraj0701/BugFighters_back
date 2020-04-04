@@ -168,3 +168,77 @@ class ListSlots(generics.ListCreateAPIView):
             logger.error("Failed to save business")
 
         return Response(None, status=status.HTTP_201_CREATED, headers=None)
+
+#
+# class ListSlots(generics.ListCreateAPIView):
+#     """
+#     View to list all users in the system.
+#     * Requires token authentication.
+#     * Only admin users are able to access this view.
+#     """
+#     # authentication_classes = []
+#     # permission_classes = [permissions.IsAdminUser]
+#     # permission_classes = (permissions.IsAuthenticated,)
+#     queryset = UserSlot.objects.all()
+#     serializer_class = UserSlotSerializer
+#     filterset_fields = ['date', 'longitude', 'business_type', "slot"]
+#
+#     def get_object(self):
+#         try:
+#
+#             return User.objects.get(id=self.kwargs.get('id'))
+#         except Business.DoesNotExist:
+#             raise Http404
+#
+#     def get_queryset(self, id=None):
+#         """
+#         This view should return a list of all the purchases for
+#         the user as determined by the username portion of the URL.
+#         """
+#
+#         date = self.request.query_params.get('date')
+#         slot = self.request.query_params.get('slot')
+#         if date is None:
+#             from datetime import date
+#             date = date.today().strftime("%Y-%m-%d")
+#             print("Querying for date %s" % date)
+#         business = self.get_object()
+#         print("Requesting query %s %s" % (date, business))
+#
+#         user_slot_query = UserSlot.objects.filter(business=business)
+#         if date is not None:
+#             user_slot_query = user_slot_query.filter(date=date)
+#         if slot is not None:
+#             user_slot_query = user_slot_query.filter(slot=slot)
+#         return user_slot_query
+#
+#     def post(self, request, *args, **kwargs):
+#
+#         try:
+#             user_slot = UserSlot()
+#
+#             business = self.get_object()
+#             user_slot.customer_name = self.request.data["customer_name"]
+#             user_slot.mobile = self.request.data["mobile"]
+#             user_slot.slot = self.request.data["slot"]
+#             user_slot.date = self.request.data["date"]
+#
+#             if user_slot.date is None or len(user_slot.date) == 0:
+#                 from datetime import date
+#                 user_slot.date = date.today().strftime("%Y-%m-%d")
+#             print("DATE", user_slot.date)
+#             user_slot.business = business
+#             if user_slot.slot not in business.slots:
+#                 return Response("INVALID_SLOT", status=status.HTTP_400_BAD_REQUEST, headers=None)
+#             slots = UserSlot.objects.filter(business=business, slot=self.request.data["slot"],date=user_slot.date)
+#             if len(slots) >= business.users_allowed:
+#                 return Response("ALREADY_FULL", status=status.HTTP_400_BAD_REQUEST, headers=None)
+#             user_slot.save()
+#             serializer = UserSlotSerializer(user_slot)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         except:
+#             import traceback
+#             traceback.print_exc()
+#             logger.error("Failed to save business")
+#
+#         return Response(None, status=status.HTTP_201_CREATED, headers=None)

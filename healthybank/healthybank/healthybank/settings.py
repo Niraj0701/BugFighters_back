@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -142,7 +143,8 @@ if 'ENVIRONMENT' in os.environ and os.environ['ENVIRONMENT'] == 'production':
 
     CORS_ORIGIN_WHITELIST = (
         'https://web.healthybank.in',
-        'https://localhost:8000'
+        'https://localhost:8000',
+        'http://localhost:3000'
     )
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
