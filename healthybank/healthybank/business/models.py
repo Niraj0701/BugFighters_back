@@ -23,6 +23,11 @@ class Business(models.Model):
     slot_size_min=models.IntegerField(default=15)
     business_type = models.CharField( max_length=20, choices=BUSINESS_TYPES, default="UNKNOWN")
 
+    def __str__(self):
+        return self.name
+
+
+
     # timezone = models.
 
 class Slot(models.Model):
