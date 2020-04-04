@@ -36,15 +36,17 @@ class Business(models.Model):
 
     @property
     def slots(self):
-        start_hr,start_min,throw_away =  str(self.start_time).split(":")
-        end_hr, end_min, throw_away = str(self.end_time).split(":")
+        print(self.start_time,self.end_time)
+
+        start_hr,start_min =  str(self.start_time).split(":")[:2]
+        end_hr, end_min = str(self.end_time).split(":")[:2]
         start_min_of_day = int(start_hr) * 60 + int(start_min)
         end_min_of_day = int(end_hr)*60+int(end_min)
         slots = []
         slot_start = start_min_of_day
         while slot_start < end_min_of_day:
             slots.append('{:02d}:{:02d}'.format(*divmod(slot_start, 60)))
-            slot_start+=self.slot_size_min
+            slot_start += int(self.slot_size_min)
         return slots
 
 

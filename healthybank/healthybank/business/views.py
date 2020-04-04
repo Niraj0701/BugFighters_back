@@ -1,4 +1,5 @@
 # Create your views here.
+from django.contrib.gis.db.models.functions import Distance
 from django.http import Http404
 from rest_framework import serializers
 from business.models import Business, UserSlot
@@ -7,6 +8,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from rest_framework import generics, status
 from rest_framework.response import Response
 import logging
+from django.contrib.gis.geos import *
 
 logger = logging.getLogger(__name__)
 
@@ -16,12 +18,12 @@ class BusinessSerializer(serializers.ModelSerializer):
     # slots = serializers.SerializerMethodField('get_slots', read_only=True)
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
-    distance = serializers.SerializerMethodField('get_distance',read_only=True)
-
+    distance = serializers.DecimalField(
+        source='distance.m', max_digits=10, decimal_places=2, read_only=True)
     class Meta:
         model = Business
         fields = ['name', 'coords', 'id', "business_type", 'users_allowed', 'slot_size_min', "longitude", "latitude",
-                  "slots", "start_time", "end_time","distance","address"]
+                  "slots", "start_time", "end_time", "address", "distance"]
         # exclude = ['organization']
         # fields = '__all__'
 
@@ -30,15 +32,15 @@ class BusinessSerializer(serializers.ModelSerializer):
             return {"latitude": obj.loc.x, "longitude": obj.loc.y}
         return {}
 
-    def get_distance(self,obj):
-
-        latitude = self.context['request'].query_params.get('latitude')
-        longitude = self.context['request'].query_params.get('longitude')
-        if latitude is not None and longitude is not None:
-            request_location = GEOSGeometry('SRID=4326;POINT(%s %s)' % ( latitude, longitude))
-
-            return obj.loc.distance(request_location) * 100 * 1000
-        return 0
+    # def get_distance(self,obj):
+    #
+    #     latitude = self.context['request'].query_params.get('latitude')
+    #     longitude = self.context['request'].query_params.get('longitude')
+    #     if latitude is not None and longitude is not None:
+    #         request_location = GEOSGeometry('SRID=4326;POINT(%s %s)' % ( latitude, longitude))
+    #
+    #         return obj.loc.distance(request_location) * 100 * 1000
+    #     return 0
 
 
 
@@ -81,7 +83,10 @@ class ListBusinesses(generics.ListCreateAPIView):
             logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
             pnt_string = 'POINT(%s %s)' % (latitude, longitude)
             pnt = GEOSGeometry(pnt_string, srid=4326)
-            business_query = business_query.filter(loc__distance_gte=(pnt, 500))
+
+            from django.contrib.gis.measure import D
+            business_query = business_query.filter(loc__distance_gte=(pnt, D(m=1570000))).annotate(
+                distance=Distance('loc', pnt)).order_by('distance')
         if btype is not None:
             business_query = business_query.filter(business_type=btype)
 
@@ -148,6 +153,7 @@ class ListSlots(generics.ListCreateAPIView):
             user_slot_query = user_slot_query.filter(date=date)
         if slot is not None:
             user_slot_query = user_slot_query.filter(slot=slot)
+        user_slot_query = user_slot_query.order_by('date','slot')
         return user_slot_query
 
     def post(self, request, *args, **kwargs):
@@ -164,7 +170,6 @@ class ListSlots(generics.ListCreateAPIView):
             if user_slot.date is None or len(user_slot.date) == 0:
                 from datetime import date
                 user_slot.date = date.today().strftime("%Y-%m-%d")
-            print("DATE", user_slot.date)
             user_slot.business = business
             if user_slot.slot not in business.slots:
                 return Response("INVALID_SLOT", status=status.HTTP_400_BAD_REQUEST, headers=None)
