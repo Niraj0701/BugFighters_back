@@ -45,12 +45,17 @@ class ListBusinesses(generics.ListCreateAPIView):
         """
         latitude = self.request.query_params.get('latitude')
         longitude = self.request.query_params.get('longitude')
+        btype = self.request.query_params.get('btype')
+        business_query = Business.objects.all()
         if latitude is not None or longitude is not None:
             logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
             pnt_string = 'POINT(%s %s)' % (latitude, longitude)
             pnt = GEOSGeometry(pnt_string, srid=4326)
-            return Business.objects.filter(loc__distance_gte=(pnt,500))
-        return Business.objects.all()
+            business_query = business_query.filter(loc__distance_gte=(pnt, 500))
+        if btype is not None:
+            business_query = business_query.filter(business_type=btype)
+
+        return business_query
 
     def create(self, request, *args, **kwargs):
 
