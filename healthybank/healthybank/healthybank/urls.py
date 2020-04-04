@@ -17,7 +17,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path, include
-from business.views import ListBusinesses
+from business.views import ListBusinesses, ListSlots
 from django.conf import settings
 from django.http import HttpResponse
 
@@ -27,5 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^health', health_check, name="health_check"),
     url(r'^api/businesses', ListBusinesses.as_view()),
+    url(r'^api/business/(?P<id>\w{0,50})/slots', ListSlots.as_view()),
+    url(r'^api/user/(?P<id>\w{0,50})/slots', ListSlots.as_view()),
     url(r'api-docs/', include('rest_framework.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

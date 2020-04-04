@@ -5,6 +5,7 @@ from django.contrib.gis.db import models
 
 from django.contrib import admin
 
+
 class BusinessAdmin(admin.ModelAdmin):
     search_fields = ['name', 'loc', 'users_allowed', 'slot_size_min']
 
@@ -22,17 +23,37 @@ class Business(models.Model):
     users_allowed=models.IntegerField(default=10)
     slot_size_min=models.IntegerField(default=15)
     business_type = models.CharField( max_length=20, choices=BUSINESS_TYPES, default="UNKNOWN")
+    start_time=models.TimeField(default="9:00")
+    end_time = models.TimeField(default="17:00")
 
     def __str__(self):
         return self.name
 
 
+    @property
+    def slots(self):
+        start_hr,start_min,throw_away =  str(self.start_time).split(":")
+        end_hr, end_min, throw_away = str(self.end_time).split(":")
+        start_min_of_day = int(start_hr) * 60 + int(start_min)
+        end_min_of_day = int(end_hr)*60+int(end_min)
+        slots = []
+        slot_start = start_min_of_day
+        while slot_start < end_min_of_day:
+            slots.append('{:02d}:{:02d}'.format(*divmod(slot_start, 60)))
+            slot_start+=self.slot_size_min
+        return slots
+
+
+
 
     # timezone = models.
 
-class Slot(models.Model):
+class UserSlot(models.Model):
       business =  models.ForeignKey('Business', on_delete=models.CASCADE)
-      min_time = models.CharField(max_length=100)
+      slot = models.CharField(max_length=100)
+      customer_name =models.CharField(max_length=100,default=None)
+      # user = models.ForeignKey(User)
+      date = models.DateField()
 
 
 
