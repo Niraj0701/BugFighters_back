@@ -130,3 +130,24 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+
+MSG91_AUTH_KEY = '282926ATay6P6Gz5d14cad3'
+MSG91_SENDER = 'WELLMO'
+# AKIA52JG2BGTQITCPH72/XGwn266/PhVcHNf+JlJ23fuecDXCSn7m+ZuUl1vG
+if 'ENVIRONMENT' in os.environ and os.environ['ENVIRONMENT'] == 'production':
+    print("Setting production environment ")
+    SECURE_SSL_REDIRECT = True
+    CORS_ORIGIN_ALLOW_ALL = False
+
+    CORS_ORIGIN_WHITELIST = (
+        'https://web.wellmoapp.in',
+        'https://localhost:8000'
+    )
+    USE_X_FORWARDED_HOST = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+else:
+    print('Setting up local environment')
+    CORS_ORIGIN_ALLOW_ALL = True
