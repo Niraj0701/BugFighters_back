@@ -21,7 +21,7 @@ class BusinessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
         fields = ['name', 'coords', 'id', "business_type", 'users_allowed', 'slot_size_min', "longitude", "latitude",
-                  "slots", "start_time", "end_time","distance"]
+                  "slots", "start_time", "end_time","distance","address"]
         # exclude = ['organization']
         # fields = '__all__'
 
