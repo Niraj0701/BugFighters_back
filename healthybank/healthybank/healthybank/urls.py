@@ -25,7 +25,7 @@ def health_check(request):
     return HttpResponse("Success")
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^health',health_check, name="health_check"),
-    url(r'api/businesses', ListBusinesses.as_view()),
+    url(r'^health', health_check, name="health_check"),
+    url(r'^api/businesses', ListBusinesses.as_view()),
     url(r'api-docs/', include('rest_framework.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

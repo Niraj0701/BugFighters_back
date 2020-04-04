@@ -45,7 +45,7 @@ class ListBusinesses(generics.ListCreateAPIView):
         """
         latitude = self.request.query_params.get('latitude')
         longitude = self.request.query_params.get('longitude')
-        btype = self.request.query_params.get('btype')
+        btype = self.request.query_params.get('business_type')
         business_query = Business.objects.all()
         if latitude is not None or longitude is not None:
             logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
@@ -77,3 +77,5 @@ class ListBusinesses(generics.ListCreateAPIView):
 
 
         return Response(None, status=status.HTTP_201_CREATED, headers=None)
+
+
