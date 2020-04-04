@@ -6,10 +6,7 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
 import logging
-from django.http import HttpResponse
-
 logger = logging.getLogger(__name__)
 
 class BusinessSerializer(serializers.ModelSerializer):
@@ -22,13 +19,10 @@ class BusinessSerializer(serializers.ModelSerializer):
         # exclude = ['organization']
         # fields = '__all__'
 
-
     def get_coords(self, obj):
         if isinstance(obj, Business):
-            print(obj.loc.x)
             return { "latitude": obj.loc.x, "longitude":obj.loc.y}
         return {}
-
 
 
 class ListBusinesses(generics.ListCreateAPIView):
@@ -42,39 +36,34 @@ class ListBusinesses(generics.ListCreateAPIView):
     # permission_classes = (permissions.IsAuthenticated,)
     queryset = Business.objects.all()
     serializer_class =  BusinessSerializer
-
-    filterset_fields = ['latitude','longitude','btype']
+    filterset_fields = ['latitude','longitude', 'business_type']
 
     def get_queryset(self):
         """
         This view should return a list of all the purchases for
         the user as determined by the username portion of the URL.
         """
-        print(self.kwargs, )
-        lat = self.request.query_params.get('latitude')
-        longt = self.request.query_params.get('longitude')
-        logging.debug("Latitutde & Longitude %s %s " % ( lat, longt))
-        pnt_string = 'POINT(%s %s)' % ( lat, longt)
-        pnt = GEOSGeometry(pnt_string, srid=4326)
-        return Business.objects.filter(loc__distance_gte=(pnt,500))
-
+        latitude = self.request.query_params.get('latitude')
+        longitude = self.request.query_params.get('longitude')
+        if latitude is not None or longitude is not None:
+            logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
+            pnt_string = 'POINT(%s %s)' % (latitude, longitude)
+            pnt = GEOSGeometry(pnt_string, srid=4326)
+            return Business.objects.filter(loc__distance_gte=(pnt,500))
+        return Business.objects.all()
 
     def create(self, request, *args, **kwargs):
 
         try:
             business=Business()
-
             pnt_string = 'POINT(%s %s)' % (request.data["latitude"], request.data["longitude"])
-
             business.loc  = GEOSGeometry(pnt_string, srid=4326)
             business.business_type =  request.data["business_type"]
             business.name = request.data["name"]
             business.slot_size_min = request.data["slot_size_min"]
             business.users_allowed = request.data["users_allowed"]
             business.save()
-
             serializer = BusinessSerializer(business)
-
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
             import traceback

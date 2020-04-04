@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf.urls import url
-from django.urls import path
+from django.urls import path, include
 from business.views import ListBusinesses
 from django.conf import settings
 from django.http import HttpResponse
@@ -26,5 +26,6 @@ def health_check(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^health',health_check, name="health_check"),
-    url(r'api/businesses', ListBusinesses.as_view())
+    url(r'api/businesses', ListBusinesses.as_view()),
+    url(r'api-docs/', include('rest_framework.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

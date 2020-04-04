@@ -25,11 +25,6 @@ class Business(models.Model):
 
     # timezone = models.
 
-
-
-
-
-
 class Slot(models.Model):
       business =  models.ForeignKey('Business', on_delete=models.CASCADE)
       min_time = models.CharField(max_length=100)
