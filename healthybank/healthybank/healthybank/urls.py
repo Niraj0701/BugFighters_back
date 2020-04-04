@@ -19,8 +19,12 @@ from django.conf.urls import url
 from django.urls import path
 from business.views import ListBusinesses
 from django.conf import settings
+from django.http import HttpResponse
 
+def health_check(request):
+    return HttpResponse("Success")
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^health',health_check, name="health_check"),
     url(r'api/businesses', ListBusinesses.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
