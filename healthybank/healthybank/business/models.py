@@ -28,6 +28,7 @@ class Business(models.Model):
     business_type = models.CharField( max_length=20, choices=BUSINESS_TYPES, default="UNKNOWN")
     start_time=models.TimeField(default="9:00")
     end_time = models.TimeField(default="17:00")
+    address = models.TextField(max_length=100, null=True,default=None)
 
     def __str__(self):
         return self.name
