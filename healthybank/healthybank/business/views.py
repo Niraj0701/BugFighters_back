@@ -1,47 +1,45 @@
 # Create your views here.
 from django.http import Http404
 from rest_framework import serializers
-from business.models import Business,UserSlot
+from business.models import Business, UserSlot
 from django.contrib.gis.geos import GEOSGeometry
 
 from rest_framework import generics, status
 from rest_framework.response import Response
 import logging
+
 logger = logging.getLogger(__name__)
 
+
 class BusinessSerializer(serializers.ModelSerializer):
-    coords = serializers.SerializerMethodField('get_coords',read_only=False)
+    coords = serializers.SerializerMethodField('get_coords', read_only=False)
     # slots = serializers.SerializerMethodField('get_slots', read_only=True)
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
+
     class Meta:
         model = Business
         fields = ['name', 'coords', 'id', "business_type", 'users_allowed', 'slot_size_min', "longitude", "latitude",
-                  "slots", "start_time","end_time"]
+                  "slots", "start_time", "end_time"]
         # exclude = ['organization']
         # fields = '__all__'
 
     def get_coords(self, obj):
         if isinstance(obj, Business):
-            return { "latitude": obj.loc.x, "longitude":obj.loc.y}
+            return {"latitude": obj.loc.x, "longitude": obj.loc.y}
         return {}
 
 
-
-
-
 class UserSlotSerializer(serializers.ModelSerializer):
-
-    business_info = serializers.SerializerMethodField('get_business', read_only=False)
+    business = serializers.SerializerMethodField('get_business', read_only=True)
+    date = serializers.DateField(required=False)
     class Meta:
         model = UserSlot
-
-        # exclude = ['organization']
         fields = '__all__'
 
     def get_business(self, obj):
         if isinstance(obj, UserSlot):
-            return {"name":obj.business.name,"id":obj.business.id,"type":obj.business.business_type}
+            return {"name": obj.business.name, "id": obj.business.id, "type": obj.business.business_type}
         return {}
 
 
@@ -55,8 +53,8 @@ class ListBusinesses(generics.ListCreateAPIView):
     # permission_classes = [permissions.IsAdminUser]
     # permission_classes = (permissions.IsAuthenticated,)
     queryset = Business.objects.all()
-    serializer_class =  BusinessSerializer
-    filterset_fields = ['latitude','longitude', 'business_type']
+    serializer_class = BusinessSerializer
+    filterset_fields = ['latitude', 'longitude', 'business_type']
 
     def get_queryset(self):
         """
@@ -80,10 +78,10 @@ class ListBusinesses(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
 
         try:
-            business=Business()
+            business = Business()
             pnt_string = 'POINT(%s %s)' % (request.data["latitude"], request.data["longitude"])
-            business.loc  = GEOSGeometry(pnt_string, srid=4326)
-            business.business_type =  request.data["business_type"]
+            business.loc = GEOSGeometry(pnt_string, srid=4326)
+            business.business_type = request.data["business_type"]
             business.name = request.data["name"]
             business.slot_size_min = request.data["slot_size_min"]
             business.users_allowed = request.data["users_allowed"]
@@ -95,11 +93,7 @@ class ListBusinesses(generics.ListCreateAPIView):
             traceback.print_exc()
             logger.error("Failed to save business")
 
-
         return Response(None, status=status.HTTP_201_CREATED, headers=None)
-
-
-
 
 
 class ListSlots(generics.ListCreateAPIView):
@@ -112,8 +106,8 @@ class ListSlots(generics.ListCreateAPIView):
     # permission_classes = [permissions.IsAdminUser]
     # permission_classes = (permissions.IsAuthenticated,)
     queryset = UserSlot.objects.all()
-    serializer_class =  UserSlotSerializer
-    filterset_fields = ['date', 'longitude', 'business_type',"slot"]
+    serializer_class = UserSlotSerializer
+    filterset_fields = ['date', 'longitude', 'business_type', "slot"]
 
     def get_object(self):
         try:
@@ -122,23 +116,24 @@ class ListSlots(generics.ListCreateAPIView):
         except Business.DoesNotExist:
             raise Http404
 
-    def get_queryset(self,id=None):
+    def get_queryset(self, id=None):
         """
         This view should return a list of all the purchases for
         the user as determined by the username portion of the URL.
         """
 
-
         date = self.request.query_params.get('date')
         slot = self.request.query_params.get('slot')
-        # if date is None:
-        #     dat
+        if date is None:
+            from datetime import date
+            date = date.today().strftime("%Y-%m-%d")
+            print("Querying for date %s" % date)
         business = self.get_object()
         print("Requesting query %s %s" % (date, business))
 
         user_slot_query = UserSlot.objects.filter(business=business)
         if date is not None:
-           user_slot_query = user_slot_query.filter(date=date)
+            user_slot_query = user_slot_query.filter(date=date)
         if slot is not None:
             user_slot_query = user_slot_query.filter(slot=slot)
         return user_slot_query
@@ -150,12 +145,20 @@ class ListSlots(generics.ListCreateAPIView):
 
             business = self.get_object()
             user_slot.customer_name = self.request.data["customer_name"]
+            user_slot.mobile = self.request.data["mobile"]
             user_slot.slot = self.request.data["slot"]
             user_slot.date = self.request.data["date"]
-            user_slot.business=business
-            slots=UserSlot.objects.filter(business=business,slot = self.request.data["slot"])
+
+            if user_slot.date is None or len(user_slot.date) == 0:
+                from datetime import date
+                user_slot.date = date.today().strftime("%Y-%m-%d")
+            print("DATE", user_slot.date)
+            user_slot.business = business
+            if user_slot.slot not in business.slots:
+                return Response("INVALID_SLOT", status=status.HTTP_400_BAD_REQUEST, headers=None)
+            slots = UserSlot.objects.filter(business=business, slot=self.request.data["slot"],date=user_slot.date)
             if len(slots) >= business.users_allowed:
-               return  Response("ALREADY_FULL", status=status.HTTP_400_BAD_REQUEST, headers=None)
+                return Response("ALREADY_FULL", status=status.HTTP_400_BAD_REQUEST, headers=None)
             user_slot.save()
             serializer = UserSlotSerializer(user_slot)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -163,6 +166,5 @@ class ListSlots(generics.ListCreateAPIView):
             import traceback
             traceback.print_exc()
             logger.error("Failed to save business")
-
 
         return Response(None, status=status.HTTP_201_CREATED, headers=None)
