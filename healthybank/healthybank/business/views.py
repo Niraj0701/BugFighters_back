@@ -102,6 +102,7 @@ class ListBusinesses(generics.ListCreateAPIView):
             business.name = request.data["name"]
             business.slot_size_min = request.data["slot_size_min"]
             business.users_allowed = request.data["users_allowed"]
+            business.address = request.data["address"]
             business.save()
             serializer = BusinessSerializer(business)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -173,7 +174,8 @@ class ListSlots(generics.ListCreateAPIView):
             user_slot.business = business
             if user_slot.slot not in business.slots:
                 return Response("INVALID_SLOT", status=status.HTTP_400_BAD_REQUEST, headers=None)
-            slots = UserSlot.objects.filter(business=business, slot=self.request.data["slot"],date=user_slot.date)
+            print(user_slot.date,user_slot.slot, business)
+            slots = UserSlot.objects.filter(business=business, slot=user_slot.slot,date=user_slot.date)
             if len(slots) >= business.users_allowed:
                 return Response("ALREADY_FULL", status=status.HTTP_400_BAD_REQUEST, headers=None)
             user_slot.save()
