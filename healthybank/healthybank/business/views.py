@@ -85,7 +85,7 @@ class ListBusinesses(generics.ListCreateAPIView):
             pnt = GEOSGeometry(pnt_string, srid=4326)
 
             from django.contrib.gis.measure import D
-            business_query = business_query.filter(loc__distance_gte=(pnt, D(m=1570000))).annotate(
+            business_query = business_query.filter(loc__distance_lte=(pnt, D(m=2000))).annotate(
                 distance=Distance('loc', pnt)).order_by('distance')
         if btype is not None:
             business_query = business_query.filter(business_type=btype)
