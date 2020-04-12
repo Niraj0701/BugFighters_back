@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'mapwidgets',
     'corsheaders',
     'rest_framework',
     'business'
@@ -128,7 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -261,3 +262,13 @@ else:
 #
 #     }
 # }
+#
+MAP_WIDGETS = {
+    # "GooglePointFieldWidget": (
+    #     ("zoom", 15),
+    #     ("mapCenterLocationName", "london"),
+    #     ("GooglePlaceAutocompleteOptions", {'componentRestrictions': {'country': 'uk'}}),
+    #     ("markerFitZoom", 12),
+    # ),
+    "GOOGLE_MAP_API_KEY": os.environ["GOOGLE_MAP_API_KEY"]
+}

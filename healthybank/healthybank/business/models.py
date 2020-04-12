@@ -4,10 +4,16 @@
 from django.contrib.gis.db import models
 
 from django.contrib import admin
+from django import forms
+
+from mapwidgets.widgets import GooglePointFieldWidget, GoogleStaticOverlayMapWidget
 
 
 class BusinessAdmin(admin.ModelAdmin):
     search_fields = ['name', 'loc', 'users_allowed', 'slot_size_min']
+    formfield_overrides = {
+        models.PointField: {"widget": GooglePointFieldWidget}
+    }
 
 class UserslotAdmin(admin.ModelAdmin):
         search_fields = ['business', 'customer_name', 'mobile', 'slot',"date"]
@@ -49,9 +55,14 @@ class Business(models.Model):
             slot_start += int(self.slot_size_min)
         return slots
 
-
-
-
+class BusinessForm(forms.ModelForm):
+        class Meta:
+            model = Business
+            fields = ("name","loc")
+            widgets = {
+                'loc': GooglePointFieldWidget,
+                # 'city_hall': GoogleStaticOverlayMapWidget,
+            }
     # timezone = models.
 
 class UserSlot(models.Model):
