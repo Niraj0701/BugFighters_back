@@ -81,7 +81,7 @@ class ListBusinesses(generics.ListCreateAPIView):
         business_query = Business.objects.all()
         if latitude is not None or longitude is not None:
             logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
-            pnt_string = 'POINT(%s %s)' % (latitude, longitude)
+            pnt_string = 'POINT(%s %s)' % (longitude,latitude)
             pnt = GEOSGeometry(pnt_string, srid=4326)
 
             from django.contrib.gis.measure import D
@@ -96,7 +96,7 @@ class ListBusinesses(generics.ListCreateAPIView):
 
         try:
             business = Business()
-            pnt_string = 'POINT(%s %s)' % (request.data["latitude"], request.data["longitude"])
+            pnt_string = 'POINT(%s %s)' % (request.data["longitude"], request.data["latitude"])
             business.loc = GEOSGeometry(pnt_string, srid=4326)
             business.business_type = request.data["business_type"]
             business.name = request.data["name"]
