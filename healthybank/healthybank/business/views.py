@@ -29,7 +29,7 @@ class BusinessSerializer(serializers.ModelSerializer):
 
     def get_coords(self, obj):
         if isinstance(obj, Business):
-            return {"latitude": obj.loc.x, "longitude": obj.loc.y}
+            return {"longitude": obj.loc.x, "latitude": obj.loc.y}
         return {}
 
     # def get_distance(self,obj):
