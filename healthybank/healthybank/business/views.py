@@ -1,4 +1,5 @@
 # Create your views here.
+import coreschema
 from django.contrib.gis.db.models.functions import Distance
 from django.http import Http404
 from rest_framework import serializers
@@ -61,6 +62,76 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.inspectors import SwaggerAutoSchema
 from inflection import camelize
 
+from rest_framework.filters import BaseFilterBackend
+import coreapi
+from rest_framework import filters
+class BusinessFilter(filters.BaseFilterBackend):
+    def get_search_fields(self, view, request):
+        """
+        Search fields are obtained from the view, but the request is always
+        passed to this method. Sub-classes can override this method to
+        dynamically change the search fields based on request content.
+        """
+        return getattr(view, 'query_params', None)
+
+    def get_schema_fields(self, view):
+        sf_result = self.get_search_fields(view, None)
+
+        print(sf_result)
+        results = []
+        i =0
+        for field in sf_result:
+
+            newField = None
+            if field['type'].upper() =='float'.upper():
+                newField = coreapi.Field(
+                    name=field['name'],
+                    required=False, location='query',
+                    schema=coreschema.Number(
+                        title=field['name'],
+                        description=field['name']
+                    )
+                )
+            elif field['type'].upper =='int'.upper():
+                newField = coreapi.Field(
+                    name=field['name'],
+                    required=False, location='query',
+                    schema=coreschema.Integer(
+                        title=field['name'],
+                        description=field['name']
+                    )
+                )
+            else:
+                newField = coreapi.Field(
+                    name=field['name'],
+                    required=False, location='query',
+                    schema=coreschema.String(
+                        title=field['name'],
+                        description=field['name']
+                    )
+                )
+            if newField is not None:
+                results.append(newField)
+
+        return results
+
+    def filter_queryset(self, request, queryset, view):
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+        btype = request.query_params.get('business_type')
+
+        if latitude is not None or longitude is not None:
+            logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
+            pnt_string = 'POINT(%s %s)' % (longitude, latitude)
+            pnt = GEOSGeometry(pnt_string, srid=4326)
+
+            from django.contrib.gis.measure import D
+            queryset = queryset.filter(loc__distance_lte=(pnt, D(m=2000))).annotate(
+                distance=Distance('loc', pnt)).order_by('distance')
+        if btype is not None:
+            queryset = queryset.filter(business_type=btype)
+        return queryset
+
 
 class ListBusinesses(generics.ListCreateAPIView):
     """
@@ -73,31 +144,30 @@ class ListBusinesses(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Business.objects.all()
     serializer_class = BusinessSerializer
-    search_fields = ['latitude', 'longitude', 'business_type']
-    filter_backends = [DjangoFilterBackend]
-
+    query_params = [{'name':'latitude','type':'float'},{'name':'longitude','type':'float'} , {'name':'business_type','type':'String'}]
+    filter_backends = [BusinessFilter]
 
     def get_queryset(self):
         """
         This view should return a list of all the purchases for
         the user as determined by the username portion of the URL.
         """
-        latitude = self.request.query_params.get('latitude')
-        longitude = self.request.query_params.get('longitude')
-        btype = self.request.query_params.get('business_type')
-        business_query = Business.objects.all()
-        if latitude is not None or longitude is not None:
-            logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
-            pnt_string = 'POINT(%s %s)' % (longitude,latitude)
-            pnt = GEOSGeometry(pnt_string, srid=4326)
+        # latitude = self.request.query_params.get('latitude')
+        # longitude = self.request.query_params.get('longitude')
+        # btype = self.request.query_params.get('business_type')
+        return  Business.objects.all()
+        # if latitude is not None or longitude is not None:
+        #     logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
+        #     pnt_string = 'POINT(%s %s)' % (longitude,latitude)
+        #     pnt = GEOSGeometry(pnt_string, srid=4326)
+        #
+        #     from django.contrib.gis.measure import D
+        #     business_query = business_query.filter(loc__distance_lte=(pnt, D(m=2000))).annotate(
+        #         distance=Distance('loc', pnt)).order_by('distance')
+        # if btype is not None:
+        #     business_query = business_query.filter(business_type=btype)
 
-            from django.contrib.gis.measure import D
-            business_query = business_query.filter(loc__distance_lte=(pnt, D(m=2000))).annotate(
-                distance=Distance('loc', pnt)).order_by('distance')
-        if btype is not None:
-            business_query = business_query.filter(business_type=btype)
-
-        return business_query
+        # return business_query
 
     def create(self, request, *args, **kwargs):
 
@@ -200,76 +270,3 @@ class ListSlots(generics.ListCreateAPIView):
 
         return Response(None, status=status.HTTP_201_CREATED, headers=None)
 
-#
-# class ListSlots(generics.ListCreateAPIView):
-#     """
-#     View to list all users in the system.
-#     * Requires token authentication.
-#     * Only admin users are able to access this view.
-#     """
-#     # authentication_classes = []
-#     # permission_classes = [permissions.IsAdminUser]
-#     # permission_classes = (permissions.IsAuthenticated,)
-#     queryset = UserSlot.objects.all()
-#     serializer_class = UserSlotSerializer
-#     filterset_fields = ['date', 'longitude', 'business_type', "slot"]
-#
-#     def get_object(self):
-#         try:
-#
-#             return User.objects.get(id=self.kwargs.get('id'))
-#         except Business.DoesNotExist:
-#             raise Http404
-#
-#     def get_queryset(self, id=None):
-#         """
-#         This view should return a list of all the purchases for
-#         the user as determined by the username portion of the URL.
-#         """
-#
-#         date = self.request.query_params.get('date')
-#         slot = self.request.query_params.get('slot')
-#         if date is None:
-#             from datetime import date
-#             date = date.today().strftime("%Y-%m-%d")
-#             print("Querying for date %s" % date)
-#         business = self.get_object()
-#         print("Requesting query %s %s" % (date, business))
-#
-#         user_slot_query = UserSlot.objects.filter(business=business)
-#         if date is not None:
-#             user_slot_query = user_slot_query.filter(date=date)
-#         if slot is not None:
-#             user_slot_query = user_slot_query.filter(slot=slot)
-#         return user_slot_query
-#
-#     def post(self, request, *args, **kwargs):
-#
-#         try:
-#             user_slot = UserSlot()
-#
-#             business = self.get_object()
-#             user_slot.customer_name = self.request.data["customer_name"]
-#             user_slot.mobile = self.request.data["mobile"]
-#             user_slot.slot = self.request.data["slot"]
-#             user_slot.date = self.request.data["date"]
-#
-#             if user_slot.date is None or len(user_slot.date) == 0:
-#                 from datetime import date
-#                 user_slot.date = date.today().strftime("%Y-%m-%d")
-#             print("DATE", user_slot.date)
-#             user_slot.business = business
-#             if user_slot.slot not in business.slots:
-#                 return Response("INVALID_SLOT", status=status.HTTP_400_BAD_REQUEST, headers=None)
-#             slots = UserSlot.objects.filter(business=business, slot=self.request.data["slot"],date=user_slot.date)
-#             if len(slots) >= business.users_allowed:
-#                 return Response("ALREADY_FULL", status=status.HTTP_400_BAD_REQUEST, headers=None)
-#             user_slot.save()
-#             serializer = UserSlotSerializer(user_slot)
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         except:
-#             import traceback
-#             traceback.print_exc()
-#             logger.error("Failed to save business")
-#
-#         return Response(None, status=status.HTTP_201_CREATED, headers=None)
