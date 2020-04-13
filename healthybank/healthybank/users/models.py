@@ -61,7 +61,7 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True, null=True,blank=True)
     gender = models.CharField(max_length=1, choices=(('M', 'Male'), ('F', 'Female'), ('O', 'Other')), null=True)
     USERNAME_FIELD = 'mobile'
-    REQUIRED_FIELDS = ['first_name']
+    REQUIRED_FIELDS = ['name']
     objects = UserManager()
     landing_page = models.CharField(max_length=20, blank=True, null=True)
     profile = models.CharField(max_length=20, choices=(('Consumer', 'Consumer'), ('ServiceProvider', 'ServiceProvider')), null=False)
