@@ -9,7 +9,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 import logging
 from django.contrib.gis.geos import *
-
+from rest_framework import authentication, permissions
 logger = logging.getLogger(__name__)
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -70,7 +70,7 @@ class ListBusinesses(generics.ListCreateAPIView):
     """
     # authentication_classes = []
     # permission_classes = [permissions.IsAdminUser]
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = Business.objects.all()
     serializer_class = BusinessSerializer
     search_fields = ['latitude', 'longitude', 'business_type']
@@ -102,6 +102,7 @@ class ListBusinesses(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
 
         try:
+            logger.debug("User %s %s", request.user, type(request.user))
             business = Business()
             pnt_string = 'POINT(%s %s)' % (request.data["longitude"], request.data["latitude"])
             business.loc = GEOSGeometry(pnt_string, srid=4326)

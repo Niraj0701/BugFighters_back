@@ -15,13 +15,13 @@ class UserManager(BaseUserManager):
 
     use_in_migrations = True
 
-    def _create_user(self, mobile, password,first_name, **extra_fields):
+    def _create_user(self, mobile, password,name, **extra_fields):
         """Create and save a User with the given email and password."""
         if not mobile:
             raise ValueError('The given mobile must be set')
         # mobile = self.normalize_email(email)
         user = self.model(mobile=mobile, **extra_fields)
-        user.first_name = first_name
+        user.name = name
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -32,7 +32,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, mobile, password, first_name, **extra_fields):
+    def create_superuser(self, mobile, password, name, **extra_fields):
         """Create and save a SuperUser with the given email and password."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -42,7 +42,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self._create_user(mobile, password, first_name, **extra_fields)
+        return self._create_user(mobile, password, name, **extra_fields)
 
 
 from commons.models import BaseModel
@@ -56,14 +56,15 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     USER_VEFIFICATION = (('UNVERIFIED', 'UNVERIFIED'), ('VERFIED', 'VERIFIED'))
     verification_state = models.CharField(max_length=20, default='UNVERIFIED', choices=USER_VEFIFICATION)
     mobile = models.CharField(max_length=20, null=True, unique=True,default=None)
-    first_name = models.CharField(_('first name'), max_length=30, blank=True)
-    last_name = models.CharField(_('last name'), max_length=150, blank=True)
+    name = models.CharField(_('name'), max_length=30, blank=True)
+    # last_name = models.CharField(_('last name'), max_length=150, blank=True)
     email = models.EmailField(_('email address'), unique=True, null=True,blank=True)
     gender = models.CharField(max_length=1, choices=(('M', 'Male'), ('F', 'Female'), ('O', 'Other')), null=True)
     USERNAME_FIELD = 'mobile'
-    REQUIRED_FIELDS = ['first_name','last_name']
+    REQUIRED_FIELDS = ['first_name']
     objects = UserManager()
     landing_page = models.CharField(max_length=20, blank=True, null=True)
+    profile = models.CharField(max_length=20, choices=(('Consumer', 'Consumer'), ('ServiceProvider', 'ServiceProvider')), null=False)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
@@ -85,12 +86,8 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         verbose_name_plural = _('users')
 
 
-    @property
-    def name(self):
-        return "%s %s" % (self.first_name, self.last_name)
-
     def __str__(self):
-        return "%s %s -  %s" % (self.first_name, self.last_name, self.mobile)
+        return "%s -  %s" % (self.name, self.mobile)
 
 
     def clean(self):
@@ -101,12 +98,12 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         """
         Return the first_name plus the last_name, with a space in between.
         """
-        full_name = '%s %s' % (self.first_name, self.last_name)
-        return full_name.strip()
+
+        return self.name.strip()
 
     def get_short_name(self):
         """Return the short name for the user."""
-        return self.first_name
+        return self.name
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
@@ -116,4 +113,4 @@ from django.contrib import admin
 
 
 class UserAdmin(admin.ModelAdmin):
-    search_fields = ['mobile', 'first_name','last_name']
+    search_fields = ['mobile', 'name']

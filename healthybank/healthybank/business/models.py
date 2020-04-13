@@ -7,7 +7,7 @@ from django.contrib import admin
 from django import forms
 
 from mapwidgets.widgets import GooglePointFieldWidget, GoogleStaticOverlayMapWidget
-
+from django.contrib.auth import get_user_model
 
 class BusinessAdmin(admin.ModelAdmin):
     search_fields = ['name', 'loc', 'users_allowed', 'slot_size_min']
@@ -35,6 +35,7 @@ class Business(models.Model):
     start_time=models.TimeField(default="9:00")
     end_time = models.TimeField(default="17:00")
     address = models.TextField(max_length=100, null=True,default=None)
+    manager =  models.ForeignKey(get_user_model(), related_name='businesses', null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
