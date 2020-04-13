@@ -11,6 +11,7 @@ import logging
 from django.contrib.gis.geos import *
 
 logger = logging.getLogger(__name__)
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class BusinessSerializer(serializers.ModelSerializer):
@@ -55,6 +56,10 @@ class UserSlotSerializer(serializers.ModelSerializer):
         if isinstance(obj, UserSlot):
             return {"name": obj.business.name, "id": obj.business.id, "type": obj.business.business_type}
         return {}
+from drf_yasg.utils import swagger_auto_schema
+
+from drf_yasg.inspectors import SwaggerAutoSchema
+from inflection import camelize
 
 
 class ListBusinesses(generics.ListCreateAPIView):
@@ -68,7 +73,9 @@ class ListBusinesses(generics.ListCreateAPIView):
     # permission_classes = (permissions.IsAuthenticated,)
     queryset = Business.objects.all()
     serializer_class = BusinessSerializer
-    filterset_fields = ['latitude', 'longitude', 'business_type']
+    search_fields = ['latitude', 'longitude', 'business_type']
+    filter_backends = [DjangoFilterBackend]
+
 
     def get_queryset(self):
         """
