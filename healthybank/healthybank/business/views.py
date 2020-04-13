@@ -4,7 +4,7 @@ from django.http import Http404
 from rest_framework import serializers
 from business.models import Business, UserSlot
 from django.contrib.gis.geos import GEOSGeometry
-
+from django.contrib.auth import get_user_model
 from rest_framework import generics, status
 from rest_framework.response import Response
 import logging
@@ -103,6 +103,9 @@ class ListBusinesses(generics.ListCreateAPIView):
 
         try:
             logger.debug("User %s %s", request.user, type(request.user))
+            user = get_user_model().objects.get(id=request.user.id)
+            if user.profile == 'Consumer':
+                return Response("You registered as %s . To add business please contact our customer care center" % request.user.profile,status=status.HTTP_401_UNAUTHORIZED )
             business = Business()
             pnt_string = 'POINT(%s %s)' % (request.data["longitude"], request.data["latitude"])
             business.loc = GEOSGeometry(pnt_string, srid=4326)
@@ -111,6 +114,7 @@ class ListBusinesses(generics.ListCreateAPIView):
             business.slot_size_min = request.data["slot_size_min"]
             business.users_allowed = request.data["users_allowed"]
             business.address = request.data["address"]
+            business.manager = user
             business.save()
             serializer = BusinessSerializer(business)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

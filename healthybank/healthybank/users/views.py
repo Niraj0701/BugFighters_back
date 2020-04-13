@@ -34,7 +34,7 @@ class UserBasicSerializer(serializers.ModelSerializer):
     # id = serializers.IntegerField()
     email = serializers.EmailField(read_only=False, required=False)
     verification_state = serializers.CharField(read_only=True)
-    businesses = serializers.StringRelatedField(many=True,read_only=True)
+    businesses = BusinessSerializer(many=True,read_only=True)
     password = serializers.CharField(write_only=True)
 
     class Meta:
