@@ -3,6 +3,8 @@ import coreschema
 from django.contrib.gis.db.models.functions import Distance
 from django.http import Http404
 from rest_framework import serializers
+from rest_framework.schemas import ManualSchema
+
 from business.models import Business, UserSlot
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.auth import get_user_model
@@ -65,7 +67,7 @@ from inflection import camelize
 from rest_framework.filters import BaseFilterBackend
 import coreapi
 from rest_framework import filters
-class BusinessFilter(filters.BaseFilterBackend):
+class QueryParamBasedFilter(filters.BaseFilterBackend):
     def get_search_fields(self, view, request):
         """
         Search fields are obtained from the view, but the request is always
@@ -89,7 +91,7 @@ class BusinessFilter(filters.BaseFilterBackend):
                     required=False, location='query',
                     schema=coreschema.Number(
                         title=field['name'],
-                        description=field['name']
+                        description=field['description'] if 'description' in field else None
                     )
                 )
             elif field['type'].upper =='int'.upper():
@@ -98,7 +100,7 @@ class BusinessFilter(filters.BaseFilterBackend):
                     required=False, location='query',
                     schema=coreschema.Integer(
                         title=field['name'],
-                        description=field['name']
+                        description=field['description'] if 'description' in field else None
                     )
                 )
             else:
@@ -107,13 +109,15 @@ class BusinessFilter(filters.BaseFilterBackend):
                     required=False, location='query',
                     schema=coreschema.String(
                         title=field['name'],
-                        description=field['name']
+                        description=field['description'] if 'description' in field else None
                     )
                 )
             if newField is not None:
                 results.append(newField)
 
         return results
+
+class BusinessFilter(QueryParamBasedFilter):
 
     def filter_queryset(self, request, queryset, view):
         latitude = request.query_params.get('latitude')
@@ -130,6 +134,26 @@ class BusinessFilter(filters.BaseFilterBackend):
                 distance=Distance('loc', pnt)).order_by('distance')
         if btype is not None:
             queryset = queryset.filter(business_type=btype)
+        return queryset
+
+
+class SlotFilter(QueryParamBasedFilter):
+
+    def filter_queryset(self, request, queryset, view):
+
+        date = request.query_params.get('date')
+        slot = request.query_params.get('slot')
+        if date is None:
+            from datetime import date
+            date = date.today().strftime("%Y-%m-%d")
+            print("Querying for date %s" % date)
+        print("Requesting query %s %s" % (date, slot))
+
+        if date is not None:
+            queryset = queryset.filter(date=date)
+        if slot is not None:
+            queryset = queryset.filter(slot=slot)
+        queryset = queryset.order_by('date', 'slot')
         return queryset
 
 
@@ -181,7 +205,7 @@ class ListBusinesses(generics.ListCreateAPIView):
 
         return Response(None, status=status.HTTP_201_CREATED, headers=None)
 
-
+from rest_framework.schemas import AutoSchema
 class ListSlots(generics.ListCreateAPIView):
     """
     View to list all users in the system.
@@ -194,6 +218,9 @@ class ListSlots(generics.ListCreateAPIView):
     queryset = UserSlot.objects.all()
     serializer_class = UserSlotSerializer
     filterset_fields = ['date', 'longitude', 'business_type', "slot"]
+    query_params = [{'name': 'slot', 'type': 'string'}, {'name': 'date', 'type': 'string', 'description': 'date in format YYYY-mm-dd'},
+                    {'name': 'business_type', 'type': 'String'}]
+    filter_backends = [SlotFilter]
 
     def get_object(self):
         try:
@@ -208,22 +235,10 @@ class ListSlots(generics.ListCreateAPIView):
         the user as determined by the username portion of the URL.
         """
 
-        date = self.request.query_params.get('date')
-        slot = self.request.query_params.get('slot')
-        if date is None:
-            from datetime import date
-            date = date.today().strftime("%Y-%m-%d")
-            print("Querying for date %s" % date)
         business = self.get_object()
-        print("Requesting query %s %s" % (date, business))
 
-        user_slot_query = UserSlot.objects.filter(business=business)
-        if date is not None:
-            user_slot_query = user_slot_query.filter(date=date)
-        if slot is not None:
-            user_slot_query = user_slot_query.filter(slot=slot)
-        user_slot_query = user_slot_query.order_by('date','slot')
-        return user_slot_query
+        return UserSlot.objects.filter(business=business)
+
 
     def post(self, request, *args, **kwargs):
 

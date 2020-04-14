@@ -171,4 +171,4 @@ class UserSlots(generics.ListAPIView):
             user_slot_query = user_slot_query.filter(slot=slot)
         user_slot_query = user_slot_query.order_by('date','slot')
         return user_slot_query
-\
+
