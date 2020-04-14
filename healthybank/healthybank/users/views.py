@@ -137,7 +137,7 @@ class UserSlots(generics.ListAPIView):
     """
     # authentication_classes = []
     # permission_classes = [permissions.IsAdminUser]
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
     from business.models import UserSlot
     serializer_class = UserSlotSerializer
     filterset_fields = ['date', 'longitude', 'business_type', "slot"]
