@@ -70,8 +70,8 @@ class UserSlot(models.Model):
       business =  models.ForeignKey('Business', on_delete=models.CASCADE)
       slot = models.CharField(max_length=100)
       user =  models.ForeignKey('users.User', related_name="slots", on_delete=models.CASCADE, null=True)
-      customer_name =models.CharField(max_length=100,default=None)
-      mobile = models.CharField(max_length=10,default="9766818825", null=True, blank=True )
+      # customer_name =models.CharField(max_length=100,default=None)
+      # mobile = models.CharField(max_length=10,default="9766818825", null=True, blank=True )
       # user = models.ForeignKey(User)
       date = models.DateField()
 

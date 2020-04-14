@@ -13,6 +13,8 @@ from rest_framework.response import Response
 import logging
 from django.contrib.gis.geos import *
 from rest_framework import authentication, permissions
+
+
 logger = logging.getLogger(__name__)
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -51,14 +53,20 @@ class BusinessSerializer(serializers.ModelSerializer):
 class UserSlotSerializer(serializers.ModelSerializer):
     business = serializers.SerializerMethodField('get_business', read_only=True)
     date = serializers.DateField(required=False)
+    user = serializers.SerializerMethodField('get_user', read_only=True)
+
     class Meta:
         model = UserSlot
         fields = '__all__'
+        excludes = ['user']
 
     def get_business(self, obj):
         if isinstance(obj, UserSlot):
             return {"name": obj.business.name, "id": obj.business.id, "type": obj.business.business_type}
         return {}
+    def get_user(self,obj):
+        return {"name":obj.user.name, "mobile": obj.user.mobile}
+    
 from drf_yasg.utils import swagger_auto_schema
 
 from drf_yasg.inspectors import SwaggerAutoSchema
@@ -243,15 +251,16 @@ class ListSlots(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
 
         try:
+            print(self.request.data)
             user_slot = UserSlot()
             logger.debug("User %s %s", request.user, type(request.user))
             user = get_user_model().objects.get(id=request.user.id)
 
             business = self.get_object()
-            user_slot.customer_name = self.request.data["customer_name"]
-            user_slot.mobile = self.request.data["mobile"]
-            user_slot.slot = self.request.data["slot"]
-            user_slot.date = self.request.data["date"]
+            # user_slot.customer_name = self.request.data["customer_name"]
+            # user_slot.mobile = self.request.data["mobile"]
+            user_slot.slot = request.data['slot']
+            user_slot.date = request.data['date']
             if user is not None:
                 user_slot.user = user
 
