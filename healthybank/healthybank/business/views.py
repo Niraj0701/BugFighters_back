@@ -144,7 +144,8 @@ class ListBusinesses(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Business.objects.all()
     serializer_class = BusinessSerializer
-    query_params = [{'name':'latitude','type':'float'},{'name':'longitude','type':'float'} , {'name':'business_type','type':'String'}]
+    query_params = [{'name': 'latitude', 'type': 'float'}, {'name': 'longitude', 'type': 'float'},
+                    {'name': 'business_type', 'type': 'String'}]
     filter_backends = [BusinessFilter]
 
     def get_queryset(self):
@@ -152,22 +153,7 @@ class ListBusinesses(generics.ListCreateAPIView):
         This view should return a list of all the purchases for
         the user as determined by the username portion of the URL.
         """
-        # latitude = self.request.query_params.get('latitude')
-        # longitude = self.request.query_params.get('longitude')
-        # btype = self.request.query_params.get('business_type')
         return  Business.objects.all()
-        # if latitude is not None or longitude is not None:
-        #     logging.debug("Latitutde & Longitude %s %s " % (latitude, longitude))
-        #     pnt_string = 'POINT(%s %s)' % (longitude,latitude)
-        #     pnt = GEOSGeometry(pnt_string, srid=4326)
-        #
-        #     from django.contrib.gis.measure import D
-        #     business_query = business_query.filter(loc__distance_lte=(pnt, D(m=2000))).annotate(
-        #         distance=Distance('loc', pnt)).order_by('distance')
-        # if btype is not None:
-        #     business_query = business_query.filter(business_type=btype)
-
-        # return business_query
 
     def create(self, request, *args, **kwargs):
 
@@ -204,7 +190,7 @@ class ListSlots(generics.ListCreateAPIView):
     """
     # authentication_classes = []
     # permission_classes = [permissions.IsAdminUser]
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = UserSlot.objects.all()
     serializer_class = UserSlotSerializer
     filterset_fields = ['date', 'longitude', 'business_type', "slot"]
@@ -243,12 +229,16 @@ class ListSlots(generics.ListCreateAPIView):
 
         try:
             user_slot = UserSlot()
+            logger.debug("User %s %s", request.user, type(request.user))
+            user = get_user_model().objects.get(id=request.user.id)
 
             business = self.get_object()
             user_slot.customer_name = self.request.data["customer_name"]
             user_slot.mobile = self.request.data["mobile"]
             user_slot.slot = self.request.data["slot"]
             user_slot.date = self.request.data["date"]
+            if user is not None:
+                user_slot.user = user
 
             if user_slot.date is None or len(user_slot.date) == 0:
                 from datetime import date

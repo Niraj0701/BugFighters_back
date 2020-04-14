@@ -1,5 +1,6 @@
 from tokenize import TokenError
 
+from django.http import Http404
 from django.shortcuts import render
 
 # Create your views here.
@@ -12,9 +13,10 @@ import logging
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.exceptions import InvalidToken
 
+from business.models import UserSlot
 from users.models import User
 from rest_framework.views import APIView
-from business.views import BusinessSerializer
+from business.views import BusinessSerializer, UserSlotSerializer
 
 logger = logging.getLogger(__name__)
 class UserSerializer(serializers.ModelSerializer):
@@ -126,3 +128,47 @@ class UserSelfProfileAPI(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+
+class UserSlots(generics.ListAPIView):
+    """
+    View to list all users in the system.
+    * Requires token authentication.
+    * Only admin users are able to access this view.
+    """
+    # authentication_classes = []
+    # permission_classes = [permissions.IsAdminUser]
+    # permission_classes = (permissions.IsAuthenticated,)
+    from business.models import UserSlot
+    serializer_class = UserSlotSerializer
+    filterset_fields = ['date', 'longitude', 'business_type', "slot"]
+
+    def get_object(self):
+        try:
+
+            return User.objects.get(id=self.kwargs.get('id'))
+        except User.DoesNotExist:
+            raise Http404
+
+    def get_queryset(self, id=None):
+        """
+        This view should return a list of all the purchases for
+        the user as determined by the username portion of the URL.
+        """
+
+        date = self.request.query_params.get('date')
+        slot = self.request.query_params.get('slot')
+        if date is None:
+            from datetime import date
+            date = date.today().strftime("%Y-%m-%d")
+            print("Querying for date %s" % date)
+        user = self.get_object()
+        print("Requesting query %s %s" % (date, user))
+
+        user_slot_query = UserSlot.objects.filter(user=user)
+        if date is not None:
+            user_slot_query = user_slot_query.filter(date=date)
+        if slot is not None:
+            user_slot_query = user_slot_query.filter(slot=slot)
+        user_slot_query = user_slot_query.order_by('date','slot')
+        return user_slot_query
+\
