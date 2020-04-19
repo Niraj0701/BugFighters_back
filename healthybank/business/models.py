@@ -76,7 +76,7 @@ class UserSlot(models.Model):
       date = models.DateField()
 
       def __str__(self):
-          return "%s %s @ %s" %  ( self.user.name, self.mobile ,self.business.name )
+          return "%s %s @ %s" %  ( self.user.name, self.user.mobile ,self.business.name )
 
 
 
