@@ -53,8 +53,6 @@ class UserBasicSerializer(serializers.ModelSerializer):
         # if self.profile == "BusinessOwner":
 
 
-
-
 class UserWritableSerializer(serializers.Serializer):
     name = serializers.CharField()
     mobile = serializers.CharField()

@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'business',
-    'users'
+    'users',
+    'otp'
 ]
 
 MIDDLEWARE = [
