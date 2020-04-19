@@ -197,11 +197,11 @@ class ListBusinesses(generics.ListCreateAPIView):
             business = Business()
             pnt_string = 'POINT(%s %s)' % (request.data["longitude"], request.data["latitude"])
             business.loc = GEOSGeometry(pnt_string, srid=4326)
-            business.business_type = request.data["business_type"]
+            business.business_type = request.data["business_type"].upper()
             business.name = request.data["name"]
             business.slot_size_min = request.data["slot_size_min"]
             business.users_allowed = request.data["users_allowed"]
-            business.address = request.data["address"]
+            business.address = request.data["address"] if "address" in request.data else None
             business.manager = user
             business.save()
             serializer = BusinessSerializer(business)
