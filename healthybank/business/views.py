@@ -257,8 +257,6 @@ class ListSlots(generics.ListCreateAPIView):
             user = get_user_model().objects.get(id=request.user.id)
 
             business = self.get_object()
-            # user_slot.customer_name = self.request.data["customer_name"]
-            # user_slot.mobile = self.request.data["mobile"]
             user_slot.slot = request.data['slot']
             user_slot.date = request.data['date']
             if user is not None:
