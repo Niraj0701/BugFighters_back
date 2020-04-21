@@ -32,14 +32,14 @@ class RequestOTP(GenericAPIView):
             if otp is not None:
                 print("%s %s" % ( otp.updated_at, datetime.now()))
                 elapsedTime = (int)(datetime.now().timestamp() - otp.updated_at.timestamp())
-                if elapsedTime < 300:
+                if elapsedTime < 10:
                     return Response(data="Request after 5 mins", status=status.HTTP_400_BAD_REQUEST)
             else:
                 otp = OTP()
                 otp.user = user
                 elapsedTime =  None
 
-            if elapsedTime is None or elapsedTime > 300:
+            if elapsedTime is None or elapsedTime > 5:
                 otp.otp = random.randint(100000, 999999)
                 otp.save()
                 from otp.tasks import otp_generated

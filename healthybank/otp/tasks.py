@@ -12,7 +12,7 @@ logger = get_task_logger(__name__)
 def otp_generated(**kwargs):
     logger.debug("Evaluating otp generation")
     if 'otp' in kwargs and kwargs['otp'] is not None:
-        subject =  "%s is your otp for wellmo account " % kwargs['otp']
+        subject =  "%s is your otp for Shopping Token account " % kwargs['otp']
         if 'email' in kwargs and kwargs['email'] is not None:
 
             send_email.delay(to_emails=kwargs['email'], otp=kwargs['otp'], subject=subject,
