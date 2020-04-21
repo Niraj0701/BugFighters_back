@@ -65,6 +65,8 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     objects = UserManager()
     landing_page = models.CharField(max_length=20, blank=True, null=True)
     profile = models.CharField(max_length=20, choices=(('Consumer', 'Consumer'), ('ServiceProvider', 'ServiceProvider')), null=False)
+    country=models.CharField(max_length=100,null=False, default="India")
+    country_code = models.CharField(max_length=4,null=False,default="91")
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,

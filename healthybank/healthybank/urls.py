@@ -19,6 +19,7 @@ from django.conf.urls import url
 from django.urls import path, include
 from business.views import ListBusinesses, ListSlots
 from users.views import UsersAPI, UserSelfProfileAPI,UserSlots,UserVerificationAPI
+from commons.views import CountryDetailsAPI
 from otp.views import RequestOTP
 from django.conf import settings
 from django.http import HttpResponse
@@ -60,5 +61,6 @@ urlpatterns = [
     url(r'^api/otp/', RequestOTP.as_view()),
     url(r'^api/me/', UserSelfProfileAPI.as_view()),
     path('api/signin/', MobileAuthenticationView.as_view()),
+    url(r'^api/countries/', CountryDetailsAPI.as_view()),
     url(r'api-docs/', include('rest_framework.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

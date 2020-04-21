@@ -44,7 +44,7 @@ class RequestOTP(GenericAPIView):
                 otp.otp = random.randint(100000, 999999)
                 otp.save()
                 from otp.tasks import otp_generated
-                id=otp_generated.apply_async(kwargs={'otp': otp.otp, 'mobile': otp.user.mobile})
+                id=otp_generated.apply_async(kwargs={'otp': otp.otp, 'country_code':otp.user.country_code, 'mobile': otp.user.mobile})
                 logger.debug("Sent OTP %s" % id)
                 return Response( data={"otp" : otp.otp}, status=status.HTTP_200_OK)
         except Exception as e:

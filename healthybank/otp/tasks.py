@@ -20,4 +20,4 @@ def otp_generated(**kwargs):
         if 'mobile' in kwargs and kwargs['mobile'] is not None:
             logger.debug("Sending otp here %s %s " % (kwargs['otp'], kwargs['mobile']))
             sent_mobile_sms.apply_async(
-                kwargs={'mobile': kwargs['mobile'], 'message': subject })
+                kwargs={'mobile': '+' + kwargs['country_code']+kwargs['mobile'], 'message': subject })

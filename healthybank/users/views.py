@@ -11,6 +11,7 @@ from rest_framework import authentication, permissions
 from rest_framework import generics, status
 import logging
 from django.contrib.auth import get_user_model
+from healthybank.settings import COUNTRY_CODE_MAPPING_MAP
 from rest_framework_simplejwt.exceptions import InvalidToken
 
 from business.models import UserSlot
@@ -41,7 +42,7 @@ class UserBasicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['name',  'id', 'email', 'verification_state', 'mobile','profile','businesses','password']
+        fields = ['name',  'id', 'email', 'verification_state', 'mobile','profile','businesses','password', 'country', 'country_code']
         read_only_fields = ['id']
 
     # def get_businesses(self,obj):
@@ -104,6 +105,9 @@ class UsersAPI(generics.ListCreateAPIView):
         userModel.mobile =  request.data['mobile']
         userModel.profile = request.data['profile']
         userModel.set_password(request.data['password'])
+        if 'country' in request.data and request.data['country'] in COUNTRY_CODE_MAPPING_MAP:
+            userModel.country = request.data['country']
+            userModel.country_code = COUNTRY_CODE_MAPPING_MAP[request.data['country']]['Dial']
         userModel.save()
         data = {'user': UserBasicSerializer(userModel, many=False).data}
 
