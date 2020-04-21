@@ -147,7 +147,7 @@ AUTH_USER_MODEL="users.User"
 if 'ENVIRONMENT' in os.environ and os.environ['ENVIRONMENT'] == 'production':
     print("Setting production environment ")
     SECURE_SSL_REDIRECT = True
-    CORS_ORIGIN_ALLOW_ALL = False
+    CORS_ORIGIN_ALLOW_ALL = True
 
     CORS_ORIGIN_WHITELIST = (
         'https://web.healthybank.in',
