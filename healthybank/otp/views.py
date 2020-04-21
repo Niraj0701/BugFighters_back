@@ -4,12 +4,13 @@ import logging
 import random
 # Create your views here.
 from rest_framework.generics import GenericAPIView
-logger = logging.getLogger(__name__)
+
 from rest_framework.response import Response
 from rest_framework import serializers, status, permissions
 from otp.models import OTP
 from datetime import datetime, timedelta
 from otp.tasks import otp_generated
+logger = logging.getLogger('otp.views')
 class OTPRequestSerializer(serializers.Serializer):
     mobile = serializers.CharField(max_length=10, required=False)
     otp = serializers.IntegerField(required=False)
@@ -30,7 +31,7 @@ class RequestOTP(GenericAPIView):
                 otp: None
 
             if otp is not None:
-                print("%s %s" % ( otp.updated_at, datetime.now()))
+                logger.debug("%s %s" % ( otp.updated_at, datetime.now()))
                 elapsedTime = (int)(datetime.now().timestamp() - otp.updated_at.timestamp())
                 if elapsedTime < 10:
                     return Response(data="Request after 5 mins", status=status.HTTP_400_BAD_REQUEST)
@@ -43,7 +44,8 @@ class RequestOTP(GenericAPIView):
                 otp.otp = random.randint(100000, 999999)
                 otp.save()
                 from otp.tasks import otp_generated
-                otp_generated.apply_async(kwargs={'otp': otp.otp, 'mobile': otp.user.mobile})
+                id=otp_generated.apply_async(kwargs={'otp': otp.otp, 'mobile': otp.user.mobile})
+                logger.debug("Sent OTP %s" % id)
                 return Response( data={"otp" : otp.otp}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Failed to create OTP: %s" % ( e.args))

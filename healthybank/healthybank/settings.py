@@ -162,114 +162,104 @@ else:
     print('Setting up local environment')
     CORS_ORIGIN_ALLOW_ALL = True
 #
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'filters': {
-#         'require_debug_false': {
-#             '()': 'django.utils.log.RequireDebugFalse'
-#         }
-#     },
-#     'formatters': {
-#         'standard': {
-#             'format': '%(asctime)s %(levelname)s [%(name)s: %(lineno)s] -- %(message)s',
-#             'datefmt': '%m-%d-%Y %H:%M:%S'
-#         },
-#     },
-#     'handlers': {
-#         'logfile': {
-#             'level': 'DEBUG',
-#             'filters': None,
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': 'logs/logfile.log',
-#             'maxBytes': 1024 * 1024 * 5,
-#             'backupCount': 3,
-#             'formatter': 'standard'
-#         },
-#         'debug_logfile': {
-#             'level': 'DEBUG',
-#             'filters': None,
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': 'logs/debug_logfile.log',
-#             'maxBytes': 1024 * 1024 * 5,
-#             'backupCount': 5,
-#             'formatter': 'standard'
-#         },
-#         'default_logger': {
-#             'level': 'DEBUG',
-#             'filters': None,
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': 'logs/default.log',
-#             'maxBytes': 1024 * 1024 * 5,
-#             'backupCount': 2,
-#             'formatter': 'standard'
-#         },
-#         # 'celery_logger': {
-#         #     'level': 'DEBUG',
-#         #     'filters': None,
-#         #     'class': 'logging.handlers.RotatingFileHandler',
-#         #     'filename': 'logs/celery.log',
-#         #     'maxBytes': 1024 * 1024 * 5,
-#         #     'backupCount': 2,
-#         #     'formatter': 'standard'
-#         # },
-#         # 'celery_task_logger': {
-#         #     'level': 'DEBUG',
-#         #     'filters': None,
-#         #     'class': 'logging.handlers.RotatingFileHandler',
-#         #     'filename': 'logs/celery_tasks.log',
-#         #     'maxBytes': 1024 * 1024 * 5,
-#         #     'backupCount': 2,
-#         #     'formatter': 'standard'
-#         # },
-#         'console': {
-#             'level': 'DEBUG',
-#             'filters': None,
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'standard'
-#         }
-#
-#     },
-#     'loggers': {
-#         '': {
-#             'handlers': ['default_logger','console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'django': {
-#             'handlers': ['logfile', 'console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'feedmanager': {
-#             'handlers': ['logfile', 'debug_logfile'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'recipemanager': {
-#             'handlers': ['logfile', 'debug_logfile'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'menumanager': {
-#             'handlers': ['logfile', 'debug_logfile'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         # 'celery.task': {
-#         #     'handlers': ['celery_task_logger'],
-#         #     'level': 'DEBUG',
-#         #     'propagate': True,
-#         # },
-#         # 'celery': {
-#         #     'handlers': ['celery_logger'],
-#         #     'level': 'DEBUG',
-#         #     'propagate': True,
-#         # },
-#
-#     }
-# }
-#
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)s [%(name)s: %(lineno)s] -- %(message)s',
+            'datefmt': '%m-%d-%Y %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'logfile': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/logfile.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 3,
+            'formatter': 'standard'
+        },
+        'default_logger': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/default.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 2,
+            'formatter': 'standard'
+        },
+        'celery_logger': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/celery.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 2,
+            'formatter': 'standard'
+        },
+        'celery_task_logger': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/celery_tasks.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 2,
+            'formatter': 'standard'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        }
+
+    },
+    'loggers': {
+        '': {
+            'handlers': ['default_logger','console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        # 'django': {
+        #     'handlers': ['logfile', 'console'],
+        #     'level': 'INFO',
+        #     'propagate': True,
+        # },
+
+        #
+        'otp': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+
+        #
+        # '*': {
+        #     'handlers': ['logfile', 'debug_logfile'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+        # 'celery.task': {
+        #     'handlers': ['celery_task_logger'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+        # 'celery': {
+        #     'handlers': ['celery_logger'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+
+    }
+}
+
 MAP_WIDGETS = {
     # "GooglePointFieldWidget": (
     #     ("zoom", 15),

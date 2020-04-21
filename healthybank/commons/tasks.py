@@ -63,7 +63,7 @@ def sent_mobile_otp(**kwargs):
 @app.task(queue='low_priority', bind=True, default_retry_delay=30)
 def sent_mobile_sms(self, **kwargs):
     values = {'authkey': settings.MSG91_AUTH_KEY,
-              'mobiles': '91' + kwargs['mobile'],
+              'mobiles': kwargs['mobile'],
               'message': kwargs['message'],
               'sender': settings.MSG91_SENDER,
               'route': 4,
