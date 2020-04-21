@@ -3,7 +3,7 @@ import urllib
 import certifi
 from urllib3 import Retry
 
-from wellmo_backend.celery import app
+from healthybank.celery import app
 
 import os
 import json
@@ -18,7 +18,7 @@ logger = get_task_logger(__name__)
 def send_email(**kwargs):
     from sendgrid import SendGridAPIClient
     from sendgrid.helpers.mail import Mail
-    
+
     message = Mail(
         from_email='no-reply@wellmoapp.in',
         to_emails=kwargs.get('to_emails'),
