@@ -53,7 +53,7 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         #     proxy = True
         db_table = 'users'
 
-    USER_VEFIFICATION = (('UNVERIFIED', 'UNVERIFIED'), ('VERFIED', 'VERIFIED'))
+    USER_VEFIFICATION = (('UNVERIFIED', 'UNVERIFIED'), ('VERIFIED', 'VERIFIED'))
     verification_state = models.CharField(max_length=20, default='UNVERIFIED', choices=USER_VEFIFICATION)
     mobile = models.CharField(max_length=20, null=True, unique=True,default=None)
     name = models.CharField(_('name'), max_length=30, blank=True)

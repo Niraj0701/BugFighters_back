@@ -15,3 +15,12 @@ class OTP(BaseModel):
     purpose = models.CharField(max_length=20, default="LOGIN", choices=OTP_CHOICES)
 
 
+
+    @property
+    def is_valid(self, otp):
+        from datetime import datetime
+        elapsedTime = (int)(datetime.now().timestamp() - self.updated_at.timestamp())
+        if elapsedTime > 300 or otp != self.otp:
+            return False
+
+        return True

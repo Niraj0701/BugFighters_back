@@ -110,10 +110,26 @@ class UsersAPI(generics.ListCreateAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class UserVerificationAPI(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request,format=None):
+        try:
+            user = get_user_model().objects.get(id=request.user.id)
+            from otp.models import OTP
+            requested_otp = OTP.objects.get(user=user)
+            if requested_otp.is_valid(request.data['otp']):
+                user.verification_state = 'VERIFIED'
+                user.save()
+                return Response(data="USER_VERIFIED", status=status.HTTP_200_OK)
+        except:
+            logger.error("Failed to verify user %s " % request.user.id)
+        return Response(data="INVALID_USER",status=status.HTTP_404_NOT_FOUND)
+
+
 class UserSelfProfileAPI(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, format=None):
+    def get(self, request,id=None, format=None):
         '''
             Fetch self profile
         '''

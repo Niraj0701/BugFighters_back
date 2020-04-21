@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path, include
 from business.views import ListBusinesses, ListSlots
-from users.views import UsersAPI, UserSelfProfileAPI,UserSlots
+from users.views import UsersAPI, UserSelfProfileAPI,UserSlots,UserVerificationAPI
 from otp.views import RequestOTP
 from django.conf import settings
 from django.http import HttpResponse
@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^api/businesses', ListBusinesses.as_view()),
     url(r'^api/business/(?P<id>\w{0,50})/slots', ListSlots.as_view()),
     url(r'^api/user/(?P<id>\w{0,50})/slots', UserSlots.as_view()),
+    url(r'^api/user/(?P<id>\w{0,50})/verify', UserVerificationAPI.as_view()),
     url(r'^api/users/', UsersAPI.as_view()),
     url(r'^api/otp/', RequestOTP.as_view()),
     url(r'^api/me/', UserSelfProfileAPI.as_view()),
