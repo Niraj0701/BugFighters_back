@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import serializers, status, permissions
 from otp.models import OTP
 from datetime import datetime, timedelta
+from otp.tasks import otp_generated
 class OTPRequestSerializer(serializers.Serializer):
     mobile = serializers.CharField(max_length=10, required=False)
     otp = serializers.IntegerField(required=False)
@@ -40,8 +41,9 @@ class RequestOTP(GenericAPIView):
 
             if elapsedTime is None or elapsedTime > 300:
                 otp.otp = random.randint(100000, 999999)
-
                 otp.save()
+                from otp.tasks import otp_generated
+                otp_generated.apply_async(kwargs={'otp': otp.otp, 'mobile': otp.user.mobile})
                 return Response( data={"otp" : otp.otp}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Failed to create OTP: %s" % ( e.args))
