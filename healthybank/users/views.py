@@ -15,6 +15,7 @@ from healthybank.settings import COUNTRY_CODE_MAPPING_MAP
 from rest_framework_simplejwt.exceptions import InvalidToken
 
 from business.models import UserSlot
+from otp.views import OTPRequestSerializer
 from users.models import User
 from rest_framework.views import APIView
 from business.views import BusinessSerializer, UserSlotSerializer
@@ -113,19 +114,27 @@ class UsersAPI(generics.ListCreateAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
+class UserVerificationSerializer(serializers.Serializer):
+    otp=serializers.IntegerField(write_only=True,required=True)
 
 class UserVerificationAPI(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
-    def post(self,request,format=None):
+    serializer_class = UserVerificationSerializer
+
+    def post(self,request,id,format=None):
         try:
             user = get_user_model().objects.get(id=request.user.id)
             from otp.models import OTP
             requested_otp = OTP.objects.get(user=user)
-            if requested_otp.is_valid(request.data['otp']):
+            if requested_otp.is_valid(otp=request.data['otp'], purpose = 'VERIFICATION'):
                 user.verification_state = 'VERIFIED'
                 user.save()
                 return Response(data="USER_VERIFIED", status=status.HTTP_200_OK)
+            else:
+                return Response(data="INVALID_OTP", status=status.HTTP_200_OK)
         except:
+            import traceback
+            traceback.print_exc()
             logger.error("Failed to verify user %s " % request.user.id)
         return Response(data="INVALID_USER",status=status.HTTP_404_NOT_FOUND)
 

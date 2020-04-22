@@ -4,6 +4,7 @@ import certifi
 from urllib3 import Retry
 
 from healthybank.celery import app
+from healthybank import settings
 
 import os
 import json
@@ -70,6 +71,9 @@ def sent_mobile_sms(self, **kwargs):
               'country': 91
               }
 
+    if not settings.OTP_TURNED_ON:
+        logger.debug("OTP is Turned off")
+        return
     url = "https://api.msg91.com/api/sendhttp.php"  # API URL
     import urllib3
     queryparams = urllib.parse.urlencode(values)  # URL encoding the data here.

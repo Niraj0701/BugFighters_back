@@ -11,19 +11,27 @@ from otp.models import OTP
 from datetime import datetime, timedelta
 from otp.tasks import otp_generated
 logger = logging.getLogger('otp.views')
+from healthybank import settings
 class OTPRequestSerializer(serializers.Serializer):
     mobile = serializers.CharField(max_length=10, required=False)
     otp = serializers.IntegerField(required=False)
 
+from commons.utils import QueryParamBasedFilter
+class OTPGetFilter(QueryParamBasedFilter):
+    def filter_queryset(self, request, queryset, view):
+        return queryset
+
 class RequestOTP(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = OTPRequestSerializer
-
+    query_params = [{'name': 'purpose', 'type': 'String'}]
+    filter_backends = [OTPGetFilter]
     def get(self, request, format=None):
 
         try:
             user = get_user_model().objects.get(id=request.user.id)
-
+            purpose =  request.query_params.get('purpose')
+            print("OTP Purpose %s" % purpose)
             otp =  None
             try:
                 otp = OTP.objects.get(user=user)
@@ -33,14 +41,15 @@ class RequestOTP(GenericAPIView):
             if otp is not None:
                 logger.debug("%s %s" % ( otp.updated_at, datetime.now()))
                 elapsedTime = (int)(datetime.now().timestamp() - otp.updated_at.timestamp())
-                if elapsedTime < 300:
+                if elapsedTime < settings.OTP_MAX_TIME:
                     return Response(data="Request after 5 mins", status=status.HTTP_400_BAD_REQUEST)
             else:
                 otp = OTP()
                 otp.user = user
                 elapsedTime =  None
 
-            if elapsedTime is None or elapsedTime > 300:
+            if elapsedTime is None or elapsedTime > settings.OTP_MAX_TIME:
+                otp.purpose =  purpose
                 otp.otp = random.randint(100000, 999999)
                 otp.save()
                 from otp.tasks import otp_generated

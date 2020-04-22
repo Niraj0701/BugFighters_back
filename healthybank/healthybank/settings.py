@@ -239,6 +239,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'users': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
 
         #
         # '*': {
@@ -339,3 +344,6 @@ import json
 COUNTRY_CODE_MAPPING_MAP={}
 for country in COUNTRY_CODE_MAPPING:
     COUNTRY_CODE_MAPPING_MAP[country['Name']] =  country
+
+OTP_TURNED_ON = os.environ['OTP_TURN_ON'] == 'True' if 'OTP_TURN_ON' in os.environ else False
+OTP_MAX_TIME = 300 # seconds
