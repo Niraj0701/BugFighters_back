@@ -24,6 +24,7 @@ class Business(models.Model):
         ("BANK", 'BANK'),
         ("GROCERY", 'GROCERY'),
         ("PHARMACY", 'PHARMACY'),
+        ("TRUCK","TRUCK")
 
     ]
 
@@ -68,15 +69,18 @@ class BusinessForm(forms.ModelForm):
 
 class UserSlot(models.Model):
       business =  models.ForeignKey('Business', on_delete=models.CASCADE)
+      event = models.ForeignKey('Event', on_delete=models.CASCADE, null=True)
       slot = models.CharField(max_length=100)
       user =  models.ForeignKey('users.User', related_name="slots", on_delete=models.CASCADE, null=True)
-      # customer_name =models.CharField(max_length=100,default=None)
-      # mobile = models.CharField(max_length=10,default="9766818825", null=True, blank=True )
-      # user = models.ForeignKey(User)
       date = models.DateField()
 
       def __str__(self):
-          return "%s %s @ %s" %  ( self.user.name, self.user.mobile ,self.business.name )
+          return "%s %s @ %s" %  ( self.user.name, self.user.mobile ,self.event.name )
 
 
-
+class Event(models.Model):
+    business = models.ForeignKey('Business',on_delete=models.CASCADE)
+    slot = models.CharField(max_length=100)
+    date = models.DateField()
+    loc = models.PointField()
+    address = models.TextField(max_length=100, null=True, default=None)
