@@ -7,6 +7,7 @@ from rest_framework import generics, status
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from healthybank.settings import COUNTRY_CODE_MAPPING
+
 class CountryDetailsAPI(generics.GenericAPIView):
     throttle_classes = [AnonRateThrottle]
 

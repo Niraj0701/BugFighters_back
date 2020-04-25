@@ -62,5 +62,6 @@ urlpatterns = [
     url(r'^api/me/', UserSelfProfileAPI.as_view()),
     path('api/signin/', MobileAuthenticationView.as_view()),
     url(r'^api/countries/', CountryDetailsAPI.as_view()),
+    url(r'^api/items/', CountryDetailsAPI.as_view()),
     url(r'api-docs/', include('rest_framework.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
