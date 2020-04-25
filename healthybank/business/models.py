@@ -67,6 +67,8 @@ class BusinessForm(forms.ModelForm):
     # timezone = models.
 
 class UserSlot(models.Model):
+      SLOT_TYPE=(("READY-PICKUP","READY PICKUP"), ("DELIVERY","DELIVERY"), ("SELF", "SELF"))
+      SLOT_STATUS = ( ("COMPLETED","COMPLETED"),("PENDING","PENDING"), ("READY_FOR_PICKUP","READY_FOR_PICKUP"), ("READY_FOR_DELIVERY","READY_FOR_DELIVERY"))
       business =  models.ForeignKey('Business', on_delete=models.CASCADE)
       slot = models.CharField(max_length=100)
       user =  models.ForeignKey('users.User', related_name="slots", on_delete=models.CASCADE, null=True)
@@ -74,9 +76,17 @@ class UserSlot(models.Model):
       # mobile = models.CharField(max_length=10,default="9766818825", null=True, blank=True )
       # user = models.ForeignKey(User)
       date = models.DateField()
-
+      type = models.CharField(max_length=20, choices=SLOT_TYPE, default="SELF")
+      status = models.CharField(max_length=20, choices=SLOT_STATUS, default="PENDING")
       def __str__(self):
           return "%s %s @ %s" %  ( self.user.name, self.user.mobile ,self.business.name )
 
+from commons.models import BaseModel
+from items.models import Item
+
+class UserOrder(BaseModel):
+    slot = models.ForeignKey("UserSlot", related_name="items", on_delete=models.CASCADE)
+    item = models.ForeignKey("items.Item", on_delete=models.DO_NOTHING)
+    quantity = models.IntegerField(default=1)
 
 
