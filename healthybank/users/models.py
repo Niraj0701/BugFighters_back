@@ -55,18 +55,19 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
 
     USER_VEFIFICATION = (('UNVERIFIED', 'UNVERIFIED'), ('VERIFIED', 'VERIFIED'))
     verification_state = models.CharField(max_length=20, default='UNVERIFIED', choices=USER_VEFIFICATION)
-    mobile = models.CharField(max_length=20, null=True, unique=True,default=None)
+    mobile = models.CharField(max_length=20, null=True, unique=True, default=None)
     name = models.CharField(_('name'), max_length=30, blank=True)
     # last_name = models.CharField(_('last name'), max_length=150, blank=True)
-    email = models.EmailField(_('email address'), unique=True, null=True,blank=True)
+    email = models.EmailField(_('email address'), unique=True, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=(('M', 'Male'), ('F', 'Female'), ('O', 'Other')), null=True)
     USERNAME_FIELD = 'mobile'
     REQUIRED_FIELDS = ['name']
     objects = UserManager()
     landing_page = models.CharField(max_length=20, blank=True, null=True)
-    profile = models.CharField(max_length=20, choices=(('Consumer', 'Consumer'), ('ServiceProvider', 'ServiceProvider')), null=False)
-    country=models.CharField(max_length=100,null=False, default="India")
-    country_code = models.CharField(max_length=4,null=False,default="91")
+    profile = models.CharField(max_length=20,
+                               choices=(('Consumer', 'Consumer'), ('ServiceProvider', 'ServiceProvider')), null=False)
+    country = models.CharField(max_length=100, null=False, default="India")
+    country_code = models.CharField(max_length=4, null=False, default="91")
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,

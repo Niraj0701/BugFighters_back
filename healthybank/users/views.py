@@ -77,20 +77,6 @@ class MobileAuthenticationView(TokenObtainPairView):
 
 class UsersAPI(generics.ListCreateAPIView):
     serializer_class = UserBasicSerializer
-    # def authenticate(self, email=None, password=None, **kwargs):
-    #     UserModel = get_user_model()
-    #     try:
-    #         user = UserModel.objects.get(email=email)
-    #         print(user)
-    #     except UserModel.DoesNotExist:
-    #         return None
-    #     else:
-    #         if user.check_password(password):
-    #             return user
-    #     return None
-
-    # class Meta:
-
 
     def get_queryset(self):
         return User.objects.all()

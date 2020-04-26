@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path, include
 from business.views import ListBusinesses, ListSlots
+from items.views import ItemView
 from users.views import UsersAPI, UserSelfProfileAPI,UserSlots,UserVerificationAPI
 from commons.views import CountryDetailsAPI
 from otp.views import RequestOTP
@@ -62,6 +63,6 @@ urlpatterns = [
     url(r'^api/me/', UserSelfProfileAPI.as_view()),
     path('api/signin/', MobileAuthenticationView.as_view()),
     url(r'^api/countries/', CountryDetailsAPI.as_view()),
-    url(r'^api/items/', CountryDetailsAPI.as_view()),
+    url(r'^api/items/', ItemView.as_view()),
     url(r'api-docs/', include('rest_framework.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

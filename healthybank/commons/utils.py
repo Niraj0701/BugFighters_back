@@ -2,6 +2,7 @@ import coreschema
 from rest_framework.filters import BaseFilterBackend
 import coreapi
 from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
 
 
 class QueryParamBasedFilter(filters.BaseFilterBackend):
@@ -51,4 +52,10 @@ class QueryParamBasedFilter(filters.BaseFilterBackend):
                 results.append(newField)
 
         return results
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
