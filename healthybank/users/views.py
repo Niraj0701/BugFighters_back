@@ -18,7 +18,7 @@ from business.models import UserSlot
 from otp.views import OTPRequestSerializer
 from users.models import User
 from rest_framework.views import APIView
-from business.views import BusinessSerializer, UserSlotSerializer
+from business.views import BusinessSerializer, UserSlotSerializer, SlotFilter
 
 logger = logging.getLogger(__name__)
 class UserSerializer(serializers.ModelSerializer):
@@ -168,6 +168,11 @@ class UserSlots(generics.ListAPIView):
     from business.models import UserSlot
     serializer_class = UserSlotSerializer
     filterset_fields = ['date', 'longitude', 'business_type', "slot"]
+    filterset_fields = ['date', 'longitude', 'business_type', "slot"]
+    query_params = [{'name': 'slot', 'type': 'string'},
+                    {'name': 'date', 'type': 'string', 'description': 'date in format YYYY-mm-dd'},
+                    {'name': 'business_type', 'type': 'String'}]
+    filter_backends = [SlotFilter]
 
     def get_object(self):
         try:
@@ -182,18 +187,18 @@ class UserSlots(generics.ListAPIView):
         the user as determined by the username portion of the URL.
         """
 
-        date = self.request.query_params.get('date')
+        requested_date = self.request.query_params.get('date')
         slot = self.request.query_params.get('slot')
-        if date is None:
-            from datetime import date
-            date = date.today().strftime("%Y-%m-%d")
+        from datetime import date
+        today = date.today().strftime("%Y-%m-%d")
+        if requested_date is None:
+            requested_date = today
             print("Querying for date %s" % date)
         user = self.get_object()
-        print("Requesting query %s %s" % (date, user))
 
         user_slot_query = UserSlot.objects.filter(user=user)
         if date is not None:
-            user_slot_query = user_slot_query.filter(date=date)
+            user_slot_query = user_slot_query.filter(date=requested_date)
         if slot is not None:
             user_slot_query = user_slot_query.filter(slot=slot)
         user_slot_query = user_slot_query.order_by('date','slot')
