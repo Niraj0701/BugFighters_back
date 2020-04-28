@@ -9,7 +9,8 @@ from commons.models import BaseModel
 class OTP(BaseModel):
     OTP_CHOICES = (
         ("VERIFICATION", "Verification otp"),
-        ("PAYMENT", "Payment otp")
+        ("PAYMENT", "Payment otp"),
+        ('PASSWORD_UPDATE','Password Update Otp')
 
     )
     user = models.ForeignKey(get_user_model(), related_name="otps", on_delete=models.CASCADE)

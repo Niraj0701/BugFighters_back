@@ -20,10 +20,10 @@ from django.urls import path, include
 from business.views import ListBusinesses, ListSlots
 from users.views import UsersAPI, UserSelfProfileAPI,UserSlots,UserVerificationAPI
 from commons.views import CountryDetailsAPI
-from otp.views import RequestOTP
+from otp.views import RequestOTP,OpenRequestOTP
 from django.conf import settings
 from django.http import HttpResponse
-from users.views import MobileAuthenticationView
+from users.views import MobileAuthenticationView, UnAuthenticatedPasswordUpdateWithOTPAPI, AuthenticatedPasswordUpdateWithOTPAPI
 
 def health_check(request):
     return HttpResponse("Success")
@@ -59,6 +59,9 @@ urlpatterns = [
     url(r'^api/user/(?P<id>\w{0,50})/verify', UserVerificationAPI.as_view()),
     url(r'^api/users/', UsersAPI.as_view()),
     url(r'^api/otp/', RequestOTP.as_view()),
+    url(r'^api/ootp/', OpenRequestOTP.as_view()),
+    url(r'^api/password/', UnAuthenticatedPasswordUpdateWithOTPAPI.as_view()),
+    url(r'^api/password/secure', AuthenticatedPasswordUpdateWithOTPAPI.as_view()),
     url(r'^api/me/', UserSelfProfileAPI.as_view()),
     path('api/signin/', MobileAuthenticationView.as_view()),
     url(r'^api/countries/', CountryDetailsAPI.as_view()),

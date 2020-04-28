@@ -117,6 +117,12 @@ class UsersAPI(generics.ListCreateAPIView):
 class UserVerificationSerializer(serializers.Serializer):
     otp=serializers.IntegerField(write_only=True,required=True)
 
+class PasswordUpdateSerializer(serializers.Serializer):
+    otp = serializers.IntegerField(write_only=True, required=True)
+    password = serializers.CharField(max_length=20,write_only=True, required=True)
+    confirmed_password = serializers.CharField(max_length=20,write_only=True, required=True)
+    mobile = serializers.CharField(max_length=10,write_only=True,required=False)
+
 class UserVerificationAPI(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = UserVerificationSerializer
@@ -124,14 +130,70 @@ class UserVerificationAPI(generics.GenericAPIView):
     def post(self,request,id,format=None):
         try:
             user = get_user_model().objects.get(id=request.user.id)
+            purpose='VERIFICATION'
+            if 'purpose' in request.data:
+                purpose = request.data['purpose'].upper()
             from otp.models import OTP
             requested_otp = OTP.objects.get(user=user)
-            if requested_otp.is_valid(otp=request.data['otp'], purpose = 'VERIFICATION'):
+            if requested_otp.is_valid(otp=request.data['otp'], purpose = purpose):
                 user.verification_state = 'VERIFIED'
                 user.save()
+                # Change tokens
                 return Response(data="USER_VERIFIED", status=status.HTTP_200_OK)
             else:
                 return Response(data="INVALID_OTP", status=status.HTTP_200_OK)
+        except:
+            import traceback
+            traceback.print_exc()
+            logger.error("Failed to verify user %s " % request.user.id)
+        return Response(data="INVALID_USER",status=status.HTTP_404_NOT_FOUND)
+
+
+from commons.utils import PasswordUpdateThrottle
+class UnAuthenticatedPasswordUpdateWithOTPAPI(generics.GenericAPIView):
+    serializer_class = PasswordUpdateSerializer
+
+    throttle_scope = 'password'
+    def post(self,request,format=None):
+        try:
+            user = get_user_model().objects.get(mobile=request.data['mobile'])
+            from otp.models import OTP
+            requested_otp = OTP.objects.get(user=user)
+            if request.data['password'] != request.data['confirmed_password']:
+                return Response(data="PASSWORD_MISMATCH", status=status.HTTP_401_UNAUTHORIZED)
+
+            if requested_otp.is_valid(otp=request.data['otp'], purpose = 'PASSWORD_UPDATE'):
+                user.set_password(request.data['password'])
+                user.save()
+                return Response(data="PASSWORD_UPDATED", status=status.HTTP_200_OK)
+            else:
+                return Response(data="INVALID_OTP", status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            import traceback
+            traceback.print_exc()
+            logger.error("Failed to verify user %s " % request.user.id)
+        return Response(data="INVALID_USER",status=status.HTTP_404_NOT_FOUND)
+
+from commons.utils import PasswordUpdateThrottle
+class AuthenticatedPasswordUpdateWithOTPAPI(generics.GenericAPIView):
+    serializer_class = PasswordUpdateSerializer
+    throttle_classes = PasswordUpdateThrottle
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self,request,format=None):
+        try:
+            user = get_user_model().objects.get(id=request.user.id)
+            from otp.models import OTP
+            requested_otp = OTP.objects.get(user=user)
+            if request.data['password'] != request.data['confirmed_password']:
+                return Response(data="PASSWORD_MISMATCH", status=status.HTTP_401_UNAUTHORIZED)
+
+            if requested_otp.is_valid(otp=request.data['otp'], purpose = 'PASSWORD_UPDATE'):
+                user.set_password(request.data['password'])
+                user.save()
+                return Response(data="PASSWORD_UPDATED", status=status.HTTP_200_OK)
+            else:
+                return Response(data="INVALID_OTP", status=status.HTTP_401_UNAUTHORIZED)
         except:
             import traceback
             traceback.print_exc()

@@ -1,7 +1,7 @@
 import coreschema
 from rest_framework.filters import BaseFilterBackend
 import coreapi
-from rest_framework import filters
+from rest_framework import filters, throttling
 
 
 class QueryParamBasedFilter(filters.BaseFilterBackend):
@@ -52,3 +52,28 @@ class QueryParamBasedFilter(filters.BaseFilterBackend):
 
         return results
 
+import random
+
+class PasswordUpdateThrottle(throttling.SimpleRateThrottle):
+    scope = 'password'
+
+    def get_cache_key(self, request, view):
+        if request.user.is_authenticated:
+            return None  # Only throttle unauthenticated requests.
+
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': self.get_ident(request)
+        }
+
+class OTPGenerationThrottle(throttling.SimpleRateThrottle):
+    scope = 'otp'
+
+    def get_cache_key(self, request, view):
+        if request.user.is_authenticated:
+            return None  # Only throttle unauthenticated requests.
+
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': self.get_ident(request)
+        }
