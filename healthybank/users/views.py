@@ -152,7 +152,6 @@ class UserVerificationAPI(generics.GenericAPIView):
 from commons.utils import PasswordUpdateThrottle
 class UnAuthenticatedPasswordUpdateWithOTPAPI(generics.GenericAPIView):
     serializer_class = PasswordUpdateSerializer
-
     throttle_scope = 'password'
     def post(self,request,format=None):
         try:
@@ -174,10 +173,9 @@ class UnAuthenticatedPasswordUpdateWithOTPAPI(generics.GenericAPIView):
             logger.error("Failed to verify user %s " % request.user.id)
         return Response(data="INVALID_USER",status=status.HTTP_404_NOT_FOUND)
 
-from commons.utils import PasswordUpdateThrottle
+
 class AuthenticatedPasswordUpdateWithOTPAPI(generics.GenericAPIView):
     serializer_class = PasswordUpdateSerializer
-    throttle_classes = PasswordUpdateThrottle
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self,request,format=None):
