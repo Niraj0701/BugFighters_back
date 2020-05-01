@@ -25,7 +25,7 @@ class BusinessSerializer(serializers.ModelSerializer):
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
     distance = serializers.DecimalField(
-        source='distance.m', max_digits=10, decimal_places=2, read_only=True)
+      max_digits=10, decimal_places=10, read_only=True)
     class Meta:
         model = Business
         fields = ['name', 'coords', 'id', "business_type", 'users_allowed', 'slot_size_min', "longitude", "latitude",
@@ -34,6 +34,7 @@ class BusinessSerializer(serializers.ModelSerializer):
         # fields = '__all__'
 
     def get_coords(self, obj):
+        print(obj.distance)
         if isinstance(obj, Business):
             return {"longitude": obj.loc.x, "latitude": obj.loc.y}
         return {}
@@ -88,8 +89,8 @@ class BusinessFilter(QueryParamBasedFilter):
             pnt = GEOSGeometry(pnt_string, srid=4326)
 
             from django.contrib.gis.measure import D
-            queryset = queryset.filter(loc__distance_lte=(pnt, D(m=2000))).annotate(
-                distance=Distance('loc', pnt)).order_by('distance')
+            radius = 2000
+            queryset = queryset.filter(loc__distance_lte=(pnt , 2000)).annotate(distance=Distance('loc', pnt)).order_by('distance')
         if btype is not None:
             queryset = queryset.filter(business_type=btype)
         return queryset

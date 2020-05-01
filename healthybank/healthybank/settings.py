@@ -84,15 +84,27 @@ WSGI_APPLICATION = 'healthybank.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#         'NAME': 'healthybank',
+#         'USER': 'bankuser',
+#         'PASSWORD': 'healthybank123',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        # 'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.contrib.gis.db.backends.mysql',
         'NAME': 'healthybank',
-        'USER': 'bankuser',
-        'PASSWORD': 'healthybank123',
-        'HOST': 'localhost',
-        'PORT': '',
+        'USER': 'tokenadmin',
+        'PASSWORD': 'token@123',
+        'HOST': '0.0.0.0',
+        'PORT': '3306'
     }
 }
 
