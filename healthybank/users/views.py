@@ -20,7 +20,7 @@ from users.models import User
 from rest_framework.views import APIView
 from business.views import BusinessSerializer, UserSlotSerializer, SlotFilter
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('users.views')
 class UserSerializer(serializers.ModelSerializer):
     # role = serializers.SerializerMethodField('get_role')
 

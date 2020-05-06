@@ -80,7 +80,7 @@ class OpenRequestOTP(GenericAPIView):
 
             user = get_user_model().objects.get(mobile=request.query_params.get('mobile'))
             purpose =  request.query_params.get('purpose')
-            print("OTP Purpose %s" % purpose)
+            logger.debug("OTP Purpose %s" % purpose)
             otp =  None
             try:
                 otp = OTP.objects.get(user=user)

@@ -4,8 +4,8 @@ from django.db import models
 # Create your models here.
 from healthybank import settings
 from commons.models import BaseModel
-
-
+import logging
+logger = logging.getLogger('otp.models')
 class OTP(BaseModel):
     OTP_CHOICES = (
         ("VERIFICATION", "Verification otp"),
@@ -22,7 +22,8 @@ class OTP(BaseModel):
         from datetime import datetime
         elapsedTime = (int)(datetime.now().timestamp() - self.updated_at.timestamp())
         if elapsedTime > settings.OTP_MAX_TIME or otp != self.otp or purpose != self.purpose:
-            print("INVALID USER")
+            logger.debug("either time elapsed or otp didnt match or purpose didnt match")
+            logger.debug("Purpose Elapsed Time : %s provided otp %s requested purpose: %s" % ( elapsedTime, otp, purpose))
             return False
 
         return True

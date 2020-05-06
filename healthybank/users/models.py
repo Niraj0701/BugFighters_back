@@ -9,7 +9,8 @@ from django.contrib.auth.models import AbstractUser,PermissionsMixin, BaseUserMa
 from time import timezone
 from django.utils.translation import ugettext_lazy as _
 
-
+import logging
+logger = logging.getLogger('users.models')
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
 
