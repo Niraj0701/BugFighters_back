@@ -23,7 +23,7 @@ class OTP(BaseModel):
         elapsedTime = (int)(datetime.now().timestamp() - self.updated_at.timestamp())
         if elapsedTime > settings.OTP_MAX_TIME or otp != self.otp or purpose != self.purpose:
             logger.debug("either time elapsed or otp didnt match or purpose didnt match")
-            logger.debug("Purpose Elapsed Time : %s provided otp %s requested purpose: %s saved purpose %s"  % ( elapsedTime, otp, purpose, self.purpose))
+            logger.debug("Purpose Elapsed Time : %s provided otp %s requested purpose: %s saved otp %s saved purpose %s OTP_MAX_TIME %s"  % ( elapsedTime, otp, purpose,self.otp, self.purpose, settings.OTP_MAX_TIME))
             return False
 
         return True
