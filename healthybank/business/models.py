@@ -24,6 +24,7 @@ class Business(models.Model):
         ("BANK", 'BANK'),
         ("GROCERY", 'GROCERY'),
         ("PHARMACY", 'PHARMACY'),
+        ('WINE_SHOP','WINE_SHOP')
 
     ]
 
