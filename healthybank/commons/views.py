@@ -20,7 +20,7 @@ class CountryDetailsAPI(generics.GenericAPIView):
 class BusinessTypesAPI(generics.GenericAPIView):
     throttle_classes = [AnonRateThrottle]
 
-    # @method_decorator(cache_page(60 * 60 * 24))
+    @method_decorator(cache_page(60 * 60 * 1))
     def get(self, request):
         results = [a[0] for a in BUSINESS_TYPES ]
         return Response(data=results, status=status.HTTP_200_OK)
