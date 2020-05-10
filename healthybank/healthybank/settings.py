@@ -349,7 +349,7 @@ BUSINESS_TYPES = [
         ("BANK", 'BANK'),
         ("GROCERY", 'GROCERY'),
         ("PHARMACY", 'PHARMACY'),
-        ('WINE_SHOP','WINE_SHOP')
+        ('WINE_SHOP','WINE SHOP')
 
     ]
 # COUNTRY_CODE_MAPPING_JSON=json.loads(COUNTRY_CODE_MAPPING)
