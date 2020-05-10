@@ -9,6 +9,9 @@ from django import forms
 from mapwidgets.widgets import GooglePointFieldWidget, GoogleStaticOverlayMapWidget
 from django.contrib.auth import get_user_model
 
+from healthybank.settings import BUSINESS_TYPES
+
+
 class BusinessAdmin(admin.ModelAdmin):
     search_fields = ['name', 'loc', 'users_allowed', 'slot_size_min']
     formfield_overrides = {
@@ -19,14 +22,7 @@ class UserslotAdmin(admin.ModelAdmin):
         search_fields = ['business', 'customer_name', 'mobile', 'slot',"date"]
 
 class Business(models.Model):
-    BUSINESS_TYPES = [
-        ("UNKNOWN","UNKNOWN"),
-        ("BANK", 'BANK'),
-        ("GROCERY", 'GROCERY'),
-        ("PHARMACY", 'PHARMACY'),
-        ('WINE_SHOP','WINE_SHOP')
 
-    ]
 
     name = models.CharField(max_length=100)
     loc = models.PointField()
